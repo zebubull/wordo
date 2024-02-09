@@ -1,21 +1,38 @@
 {
-  inputs =
-  {
-    # this is equivalent to `nixpkgs = { url = "..."; };`
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  };
-  outputs =  { self, nixpkgs, ... }:
-  let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
-  in
-  {
-    devShells.x86_64-linux.default = pkgs.mkShell
+description = "Flutter 3.13.x";
+inputs = {
+  nixpkgs.url = "github:NixOS/nixpkgs/23.11";
+  flake-utils.url = "github:numtide/flake-utils";
+};
+outputs = { self, nixpkgs, flake-utils }:
+  flake-utils.lib.eachDefaultSystem (system:
+    let
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          android_sdk.accept_license = true;
+          allowUnfree = true;
+        };
+      };
+      buildToolsVersion = "34.0.0";
+      androidComposition = pkgs.androidenv.composeAndroidPackages {
+        buildToolsVersions = [ buildToolsVersion "28.0.3" ];
+        platformVersions = [ "34" "28" ];
+        abiVersions = [ "armeabi-v7a" "arm64-v8a" ];
+      };
+      androidSdk = androidComposition.androidsdk;
+    in
     {
-      nativeBuildInputs = with pkgs; [
-        flutter
-        xdg-user-dirs
-      ];
-    };
-  };
+      devShell =
+        with pkgs; mkShell rec {
+          GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
+          buildInputs = [
+            flutter
+            xdg-user-dirs
+            android-studio
+            android-file-transfer
+            jdk17
+          ];
+        };
+    });
 }
