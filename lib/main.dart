@@ -1,4 +1,7 @@
-import 'package:english_words/english_words.dart';
+import 'package:biden_blast/new_team_page.dart';
+import 'package:biden_blast/team_page.dart';
+import 'package:biden_blast/team_select_page.dart';
+import 'package:biden_blast/teams_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,47 +14,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TeamsModel()),
+      ],
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'Gamer App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
         ),
-        home: MyHomePage(),
+        home: HomePage(),
       ),
     );
-  }
-}
-
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void _getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void _toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
   }
 }
 
 class BigCard extends StatelessWidget {
   const BigCard({
     super.key,
-    required this.pair,
+    required this.text,
   });
 
-  final WordPair pair;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -65,29 +50,39 @@ class BigCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Text(
-          pair.asUpperCase,
+          text,
           style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
         ),
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   var selectedIndex = 0;
+  var selectedTeam = 0;
   
   @override
   Widget build(BuildContext context) {
     Widget page = switch (selectedIndex) {
-      0 => GeneratorPage(),
-      1 => FavoritesPage(),
-      _ => throw UnimplementedError('no widget for $selectedIndex'),
+      0 => MainPage(),
+      1 => TeamSelectPage(
+        onTeamSelect: (id) => setState(() {
+          selectedTeam = id;
+          selectedIndex = 3;
+      })),
+      2 => NewTeamPage(
+        onTeamCreated: (id) => setState(() {
+          selectedTeam = id;
+          selectedIndex = 3;
+      })),
+      3 => TeamPage(id: selectedTeam),
+      _ => throw UnimplementedError('Page with index $selectedIndex not found!'),
     };
     
     return LayoutBuilder(builder: (context, constraints) {
@@ -95,14 +90,17 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Row(
           children: [
             SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                destinations: [
-                  NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
-                  NavigationRailDestination(icon: Icon(Icons.favorite), label: Text('Favorites')),
-                ],
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (dest) => setState(() => selectedIndex = dest),
+              child: Consumer<TeamsModel>(
+                builder: (context, teams, _) => NavigationRail(
+                  extended: constraints.maxWidth >= 700,
+                  destinations: [
+                    NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
+                    NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
+                    NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
+                  ],
+                  selectedIndex: selectedIndex == 3 ? 1 : selectedIndex,
+                  onDestinationSelected: (dest) => setState(() => selectedIndex = dest),
+                ),
               ),
             ),
             Expanded(
@@ -118,57 +116,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var wordPair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(wordPair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BigCard(pair: wordPair),
+          BigCard(text: "Scouting App"),
+          SizedBox(height: 20),
+          Image(image: AssetImage('assets/biden.jpg')),
           SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(onPressed: appState._toggleFavorite, icon: Icon(icon), label: Text('Favorite')),
-              SizedBox(width: 10),
-              ElevatedButton(onPressed: appState._getNext, child: Text('Next Word')),
-            ]
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var favorites = appState.favorites;
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have ${favorites.length} favorites:'),
-        ),
-        for (var pair in favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asUpperCase),
-          ),
-      ],
+          const Text("Sponsored by Sleepy Joe Brandon"),
+        ]
+      )
     );
   }
 }
