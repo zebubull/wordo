@@ -12,7 +12,8 @@ class NewTeamPage extends StatefulWidget {
 }
 
 String? _validateNumber(String? value) {
-  if (value == null || value.length > 5 || int.tryParse(value) == null) {
+  final isInvalidNumber = value == null || value.length > 5 || int.tryParse(value) == null;
+  if (isInvalidNumber) {
     return 'Invalid ID';
   } else {
     return null;
@@ -30,12 +31,13 @@ class _NewTeamPageState extends State<NewTeamPage> {
     if (formState.validate()) {
       formState.save();
 
+      if (!Provider.of<TeamsModel>(context, listen: false).add(Team(id: _id, name: _name), context)) {
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Team \'$_name\' ($_id) added.')),
       );
-
-      Provider.of<TeamsModel>(context, listen: false).add(Team(id: _id, name: _name));
-
       formState.reset();
       widget.onTeamCreated?.call(_id);
     }

@@ -24,6 +24,7 @@ class TeamSelectPage extends StatelessWidget {
               child: Text('${team.name} (${team.id})'),
               onPressed: () => onTeamSelect(team.id),
             ),
+            trailing: IconButton(onPressed: () => Provider.of<TeamsModel>(context, listen: false).deleteTeam(team.id), icon: Icon(Icons.delete)),
           ),
         ],
       ))),

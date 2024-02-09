@@ -14,6 +14,7 @@
     {
       nativeBuildInputs = with pkgs; [
         flutter
+        xdg-user-dirs
       ];
     };
   };

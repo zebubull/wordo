@@ -13,14 +13,23 @@ void main() {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky).then((_) => runApp(MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+  
+  @override
+  MyAppState createState() => MyAppState();
+}
 
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => TeamsModel()),
+        ChangeNotifierProvider(create: (context) {
+          final model = TeamsModel();
+          model.load();
+          return model;
+        }),
       ],
       child: MaterialApp(
         title: 'Gamer App',
@@ -73,9 +82,19 @@ class _HomePageState extends State<HomePage> {
                     NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
                     NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
                     NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.save),
+                      label: Text(teams.saved ? 'Changes Saved' : 'Unsaved Changes'),
+                    ),
                   ],
                   selectedIndex: selectedIndex == 3 ? 1 : selectedIndex,
-                  onDestinationSelected: (dest) => setState(() => selectedIndex = dest),
+                  onDestinationSelected: (dest) {
+                    if (dest == 3) {
+                      Provider.of<TeamsModel>(context, listen: false).save(context);
+                    } else {
+                      setState(() => selectedIndex = dest);
+                    }
+                  },
                 ),
               ),
             ),
