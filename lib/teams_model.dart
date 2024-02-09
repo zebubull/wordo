@@ -83,6 +83,5 @@ class TeamsModel extends ChangeNotifier {
     final teams = await compute(_parseTeams, data);
     _teams.addAll(teams);
     notifyListeners();
-    markDirty();
   }
 }
