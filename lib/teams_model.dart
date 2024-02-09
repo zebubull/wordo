@@ -12,4 +12,13 @@ class TeamsModel extends ChangeNotifier {
     _teams.add(team);
     notifyListeners();
   }
+
+  void updateTeam(Team team) {
+    for (int i = 0; i < _teams.length; ++i) {
+      if (_teams[i].id == team.id) {
+        _teams[i] = team;
+      }
+    }
+    notifyListeners();
+  }
 }

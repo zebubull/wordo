@@ -54,6 +54,7 @@ class _NewTeamPageState extends State<NewTeamPage> {
               TextFormField(
                 decoration: const InputDecoration(hintText: 'Team ID', border: OutlineInputBorder()),
                 validator: _validateNumber,
+                keyboardType: TextInputType.number,
                 onSaved: (String? val) {_id = int.parse(val!);},
               ),
               SizedBox(height: 16),
