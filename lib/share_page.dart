@@ -33,7 +33,7 @@ Future<void> shareTeams(BuildContext context, InternetAddress? target) async {
   sender.close();
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: const Text('IP Address was null.')),
+      SnackBar(content: const Text('Teams shared')),
     );
   }
 }
@@ -50,7 +50,9 @@ Future<void> receiveTeams(BuildContext context) async {
   final teamsModel = Provider.of<TeamsModel>(context, listen: false);
 
   var receiver = await UDP.bind(Endpoint.any(port: Port(8873)));
+  print('socket');
   final datagram = await receiver.asStream(timeout: Duration(seconds: 20)).single;
+  print('got data');
 
   final teamsList = await compute(_parseTeams, datagram!.data.toString());
 
@@ -110,8 +112,9 @@ class _SharePageState extends State<SharePage> {
                       ElevatedButton.icon(
                         icon: Icon(Icons.file_upload_outlined),
                         label: const Text('Share'),
-                        onPressed: () => shareTeams(context, targetAddress),
+                        onPressed: () { if (!_formKey.currentState!.validate()) return; _formKey.currentState?.save(); shareTeams(context, targetAddress); } ,
                       ),
+                      Text('${targetAddress?.address}'),
                     ],
                   ),
                 ),
