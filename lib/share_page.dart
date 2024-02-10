@@ -1,41 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:biden_blast/big_card.dart';
 import 'package:biden_blast/team.dart';
 import 'package:biden_blast/teams_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:udp/udp.dart';
 
 class SharePage extends StatefulWidget {
   @override
   State<SharePage> createState() => _SharePageState();
 }
 
-Future<void> shareTeams(BuildContext context, InternetAddress? target) async {
-  if (!context.mounted) return;
-
+Future<void> _shareTeams(_SharePageState state, InternetAddress? target) async {
   if (target == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: const Text('IP Address was null.')),
-    );
+    state.message('IP Address was null.');
   }
 
-  final teamsJson = jsonEncode(Provider.of<TeamsModel>(context, listen: false).teams.map((t) => t.toJson()).toList());
+  final teamsJson = jsonEncode(Provider.of<TeamsModel>(state.context, listen: false).teams.map((t) => t.toJson()).toList());
 
-  var sender = await UDP.bind(Endpoint.any(port: Port(8872)));
-  if (!context.mounted) return;
-  await sender.send(teamsJson.codeUnits,
-    Endpoint.broadcast(port: Port(8873)));
+  var sock = await Socket.connect(target, 8873).onError((error, stackTrace) {
+    state.message(error.toString());
+    print(stackTrace);
+    return Future.error(error ?? 'error', stackTrace);
+  },);
 
-  sender.close();
-  if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: const Text('Teams shared')),
-    );
-  }
+  sock.add(utf8.encode(teamsJson));
+  await sock.flush();
+  await sock.close();
+
+  state.message('Teams shared');
 }
 
 List<Team> _parseTeams(String data) {
@@ -44,33 +40,36 @@ List<Team> _parseTeams(String data) {
   return json.map((j) => Team.fromJson(j)).toList();
 }
 
-Future<void> receiveTeams(BuildContext context) async {
-  if (!context.mounted) return;
+Future<void> _receiveTeams(_SharePageState state) async {
+  final teamsModel = Provider.of<TeamsModel>(state.context, listen: false);
 
-  final teamsModel = Provider.of<TeamsModel>(context, listen: false);
+  var server = await ServerSocket.bind('0.0.0.0', 8873);
+  state._startRecv();
 
-  var receiver = await UDP.bind(Endpoint.any(port: Port(8873)));
-  print('socket');
-  final datagram = await receiver.asStream(timeout: Duration(seconds: 20)).single;
-  print('got data');
+  Future(() async {
+    await Future.delayed(Duration(seconds: 12));
+    state._endRecv();
+  });
 
-  final teamsList = await compute(_parseTeams, String.fromCharCodes(datagram!.data));
 
-  receiver.close();
-  teamsModel.addTeams(teamsList);
-  if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${teamsList.length} teams received.')),
-    );
-  }
+  server.listen((socket) {
+    socket.listen((List<int> data) async {
+      final teamsList = await compute(_parseTeams, String.fromCharCodes(data));
+      teamsModel.addTeams(teamsList);
+      state.message('${teamsList.length} teams received from ${socket.address.host}.');
+    });
+  });
+
+  await Future.delayed(Duration(seconds: 10));
+  await server.close();
 }
 
 class _SharePageState extends State<SharePage> {
   final _sendKey = GlobalKey<FormState>();
-  final _recvKey = GlobalKey<FormState>();
 
   InternetAddress? targetAddress;
   String myAddress = 'Getting IP';
+  bool _receiving = false;
 
   Future<void> getIP() async {
     String addr = (await NetworkInfo().getWifiIP()) ?? 'Failed to get local IP';
@@ -84,70 +83,88 @@ class _SharePageState extends State<SharePage> {
     getIP();
   }
 
+  void _startRecv() {
+    setState(() =>_receiving = true);
+  }
+
+  void _endRecv() {
+    setState(() =>_receiving = false);
+  }
+
+  void message(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text)),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.background,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
-            ),
-            child: ExpansionTile(
-              title: Text('Send'),
-              shape: const Border(),
-              children: [
-                Form(
-                  key: _sendKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                      decoration: const InputDecoration(hintText: 'Target IP', border: OutlineInputBorder()),
-                      keyboardType: TextInputType.number,
-                      validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid IP Adress' : null,
-                      onSaved: (String? val) => targetAddress = InternetAddress(val!),
-                      ),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.file_upload_outlined),
-                        label: const Text('Share'),
-                        onPressed: () { if (!_sendKey.currentState!.validate()) return; _sendKey.currentState?.save(); shareTeams(context, targetAddress); } ,
-                      ),
-                      Text('${targetAddress?.address}'),
-                    ],
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
+              ),
+              child: ExpansionTile(
+                title: Text('Send'),
+                shape: const Border(),
+                initiallyExpanded: true,
+                children: [
+                  Form(
+                    key: _sendKey,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(hintText: 'Target IP', border: OutlineInputBorder()),
+                            keyboardType: TextInputType.number,
+                            validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid IP Adress' : null,
+                            onSaved: (String? val) => setState(() => targetAddress = InternetAddress(val!)),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.file_upload_outlined),
+                          label: const Text('Share'),
+                          onPressed: () { if (!_sendKey.currentState!.validate()) return; _sendKey.currentState?.save(); _shareTeams(this, targetAddress); } ,
+                        ),
+                        SizedBox(height: 16.0),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.background,
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
-            ),
-            child: ExpansionTile(
-              title: Text('Receive'),
-              shape: const Border(),
-              children: [
-                Form(
-                  key: _recvKey,
-                  child: Column(
-                    children: [
-                      Text('IP Address: $myAddress'),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.file_download_outlined),
-                        label: const Text('Receive'),
-                        onPressed: () => receiveTeams(context),
-                      ),
-                    ],
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
+              ),
+              child: ExpansionTile(
+                title: Text('Receive'),
+                shape: const Border(),
+                initiallyExpanded: true,
+                children: [
+                  BigCard(text: myAddress),
+                  SizedBox(height: 16.0),
+                  ElevatedButton.icon(
+                    icon: Icon(_receiving ? Icons.circle_outlined : Icons.file_download_outlined),
+                    label: Text(_receiving ? 'Waiting for data...' : 'Receive'),
+                    onPressed: () { if (!_receiving) { _receiveTeams(this); }},
                   ),
-                ),
-              ],
+                  SizedBox(height: 16.0),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
