@@ -60,9 +60,17 @@ class TeamsModel extends ChangeNotifier {
     markDirty();
   }
 
-  void addTeams(List<Team> teams) {
-    _teams.addAll(teams);
+  int addTeams(List<Team> teams) {
+    int counter = 0;
+    for (var team in teams) {
+      if (_teams.where((t) => t.id == team.id).isEmpty) {
+        _teams.add(team);
+        counter++;
+      }
+    }
+
     markDirty();
+    return counter;
   }
 
   void deleteTeam(int id) {
