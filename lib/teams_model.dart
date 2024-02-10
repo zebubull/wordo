@@ -73,8 +73,16 @@ class TeamsModel extends ChangeNotifier {
   }
 
   Future<void> export(BuildContext? context) async {
-    final localPath = (await getDownloadsDirectory());
-    final dataFile = await File('$localPath/scouting.csv').create(recursive: true);
+    final localPath = (await getDownloadsDirectory())?.path;
+    final dataFile = await File('$localPath/scouting.csv').create(recursive: true).onError((error, stackTrace) async {
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $error'))
+        );
+      }
+      final dataPath = (await getApplicationDocumentsDirectory()).path;
+      return File('$dataPath/scouting.csv').create(recursive: true);
+    });
     var sink = dataFile.openWrite();
 
     for (var team in _teams) {
