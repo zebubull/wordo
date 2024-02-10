@@ -60,6 +60,11 @@ class TeamsModel extends ChangeNotifier {
     markDirty();
   }
 
+  void addTeams(List<Team> teams) {
+    teams.addAll(teams);
+    markDirty();
+  }
+
   void deleteTeam(int id) {
     _teams.removeAt(_teams.indexWhere((t) => t.id == id));
     markDirty();
@@ -68,6 +73,7 @@ class TeamsModel extends ChangeNotifier {
   void markDirty() {
     _saved = false;
     notifyListeners();
+    
     _saveTimer?.cancel();
     _saveTimer = Timer(Duration(seconds: 15), () => save(null));
   }
@@ -77,11 +83,13 @@ class TeamsModel extends ChangeNotifier {
     final localPath = (await getApplicationDocumentsDirectory()).path;
     final dataFile = await File('$localPath/.scouting/saved.json').create(recursive: true);
     await dataFile.writeAsString(jsonEncode(teams.map((t) => t.toJson()).toList()));
+
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Saved $localPath/.scouting/saved.json'))
       );
     }
+
     _saved = true;
     notifyListeners();
   }
@@ -102,6 +110,7 @@ class TeamsModel extends ChangeNotifier {
       gotFile = false;
       return File('');
     });
+
     if (!gotFile) {
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -131,9 +140,11 @@ class TeamsModel extends ChangeNotifier {
     notifyListeners();
     final localPath = (await getApplicationDocumentsDirectory()).path;
     final dataFile = File('$localPath/.scouting/saved.json');
+
     if (!await dataFile.exists()) {
       return;
     }
+
     final data = await dataFile.readAsString();
     final teams = await compute(_parseTeams, data);
     _teams.addAll(teams);
