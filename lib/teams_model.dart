@@ -61,7 +61,7 @@ class TeamsModel extends ChangeNotifier {
   }
 
   void addTeams(List<Team> teams) {
-    teams.addAll(teams);
+    _teams.addAll(teams);
     markDirty();
   }
 
