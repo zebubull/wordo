@@ -55,8 +55,7 @@ Future<void> _receiveTeams(_SharePageState state) async {
   server.listen((socket) {
     socket.listen((List<int> data) async {
       final teamsList = await compute(_parseTeams, String.fromCharCodes(data));
-      teamsModel.addTeams(teamsList);
-      state.message('${teamsList.length} teams received from ${socket.address.host}.');
+      state.message('${teamsModel.addTeams(teamsList)} teams received from ${socket.address.host}.');
     });
   });
 
@@ -101,6 +100,10 @@ class _SharePageState extends State<SharePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final idStyle = theme.textTheme.titleMedium!.copyWith(
+      fontWeight: FontWeight.bold,
+    );
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Center(
@@ -124,9 +127,9 @@ class _SharePageState extends State<SharePage> {
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: TextFormField(
-                            decoration: const InputDecoration(hintText: 'Target IP', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(hintText: 'ID', border: OutlineInputBorder()),
                             keyboardType: TextInputType.number,
-                            validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid IP Adress' : null,
+                            validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid ID' : null,
                             onSaved: (String? val) => setState(() => targetAddress = InternetAddress(val!)),
                           ),
                         ),
@@ -152,6 +155,8 @@ class _SharePageState extends State<SharePage> {
                 shape: const Border(),
                 initiallyExpanded: true,
                 children: [
+                  Text('Your ID:', style: idStyle),
+                  SizedBox(height: 16.0),
                   BigCard(text: myAddress),
                   SizedBox(height: 16.0),
                   ElevatedButton.icon(
