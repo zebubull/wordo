@@ -54,7 +54,8 @@ Future<void> receiveTeams(BuildContext context) async {
   final datagram = await receiver.asStream(timeout: Duration(seconds: 20)).single;
   print('got data');
 
-  final teamsList = await compute(_parseTeams, datagram!.data.toString());
+  print(datagram!.data.toString());
+  final teamsList = await compute(_parseTeams, datagram.data.toString());
 
   receiver.close();
   teamsModel.addTeams(teamsList);
@@ -66,7 +67,8 @@ Future<void> receiveTeams(BuildContext context) async {
 }
 
 class _SharePageState extends State<SharePage> {
-  final _formKey = GlobalKey<FormState>();
+  final _sendKey = GlobalKey<FormState>();
+  final _recvKey = GlobalKey<FormState>();
 
   InternetAddress? targetAddress;
   String myAddress = 'Getting IP';
@@ -100,7 +102,7 @@ class _SharePageState extends State<SharePage> {
               shape: const Border(),
               children: [
                 Form(
-                  key: _formKey,
+                  key: _sendKey,
                   child: Column(
                     children: [
                       TextFormField(
@@ -112,7 +114,7 @@ class _SharePageState extends State<SharePage> {
                       ElevatedButton.icon(
                         icon: Icon(Icons.file_upload_outlined),
                         label: const Text('Share'),
-                        onPressed: () { if (!_formKey.currentState!.validate()) return; _formKey.currentState?.save(); shareTeams(context, targetAddress); } ,
+                        onPressed: () { if (!_sendKey.currentState!.validate()) return; _sendKey.currentState?.save(); shareTeams(context, targetAddress); } ,
                       ),
                       Text('${targetAddress?.address}'),
                     ],
@@ -131,13 +133,13 @@ class _SharePageState extends State<SharePage> {
               shape: const Border(),
               children: [
                 Form(
-                  key: _formKey,
+                  key: _recvKey,
                   child: Column(
                     children: [
                       Text('IP Address: $myAddress'),
                       ElevatedButton.icon(
-                        icon: Icon(Icons.file_upload_outlined),
-                        label: const Text('Share'),
+                        icon: Icon(Icons.file_download_outlined),
+                        label: const Text('Receive'),
                         onPressed: () => receiveTeams(context),
                       ),
                     ],
