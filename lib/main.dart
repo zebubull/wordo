@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
       3 => TeamPage(id: selectedTeam),
       _ => throw UnimplementedError('Page with index $selectedIndex not found!'),
     };
-    
+
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
@@ -83,14 +83,17 @@ class _HomePageState extends State<HomePage> {
                     NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
                     NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
                     NavigationRailDestination(
-                      icon: Icon(Icons.save),
+                      icon: Icon(teams.saved ? Icons.check_circle_outline : Icons.save_outlined),
                       label: Text(teams.saved ? 'Changes Saved' : 'Unsaved Changes'),
                     ),
+                    NavigationRailDestination(icon: Icon(Icons.archive), label: Text('Export Data')),
                   ],
                   selectedIndex: selectedIndex == 3 ? 1 : selectedIndex,
                   onDestinationSelected: (dest) {
                     if (dest == 3) {
                       Provider.of<TeamsModel>(context, listen: false).save(context);
+                    } else if (dest == 4) {
+                      Provider.of<TeamsModel>(context, listen: false).export(context);
                     } else {
                       setState(() => selectedIndex = dest);
                     }
