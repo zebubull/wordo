@@ -1,4 +1,5 @@
 import 'package:biden_blast/new_team_page.dart';
+import 'package:biden_blast/share_page.dart';
 import 'package:biden_blast/team_page.dart';
 import 'package:biden_blast/team_select_page.dart';
 import 'package:biden_blast/teams_model.dart';
@@ -59,14 +60,15 @@ class _HomePageState extends State<HomePage> {
       1 => TeamSelectPage(
         onTeamSelect: (id) => setState(() {
           selectedTeam = id;
-          selectedIndex = 3;
+          selectedIndex = 4;
       })),
       2 => NewTeamPage(
         onTeamCreated: (id) => setState(() {
           selectedTeam = id;
-          selectedIndex = 3;
+          selectedIndex = 4;
       })),
-      3 => TeamPage(id: selectedTeam),
+      3 => SharePage(),
+      4 => TeamPage(id: selectedTeam),
       _ => throw UnimplementedError('Page with index $selectedIndex not found!'),
     };
 
@@ -82,17 +84,18 @@ class _HomePageState extends State<HomePage> {
                     NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
                     NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
                     NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
+                    NavigationRailDestination(icon: Icon(Icons.share), label: Text('Share')),
                     NavigationRailDestination(
                       icon: Icon(teams.saved ? Icons.check_circle_outline : Icons.save_outlined),
                       label: Text(teams.saved ? 'Changes Saved' : 'Unsaved Changes'),
                     ),
                     NavigationRailDestination(icon: Icon(Icons.archive), label: Text('Export Data')),
                   ],
-                  selectedIndex: selectedIndex == 3 ? 1 : selectedIndex,
+                  selectedIndex: selectedIndex == 4 ? 1 : selectedIndex,
                   onDestinationSelected: (dest) {
-                    if (dest == 3) {
+                    if (dest == 4) {
                       Provider.of<TeamsModel>(context, listen: false).save(context);
-                    } else if (dest == 4) {
+                    } else if (dest == 5) {
                       Provider.of<TeamsModel>(context, listen: false).export(context);
                     } else {
                       setState(() => selectedIndex = dest);
