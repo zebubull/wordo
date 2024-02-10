@@ -14,6 +14,20 @@ List<Team> _parseTeams(String data) {
   return json.map((j) => Team.fromJson(j)).toList();
 }
 
+Future<String?> getDownloadPath() async {
+  Directory? dir;
+  try {
+    if (Platform.isAndroid) {
+      dir = Directory('/storage/emulated/0/Download');
+      if (!await dir.exists()) dir = await getExternalStorageDirectory();
+    } else {
+      dir = (await getDownloadsDirectory())!;
+    }
+  } catch (err, _) {
+    print('Cannot get download folder path');
+  }
+  return dir?.path;
+}
 
 class TeamsModel extends ChangeNotifier {
   List<Team> _teams = [];
@@ -73,16 +87,30 @@ class TeamsModel extends ChangeNotifier {
   }
 
   Future<void> export(BuildContext? context) async {
-    final localPath = (await getDownloadsDirectory())?.path;
-    final dataFile = await File('$localPath/scouting.csv').create(recursive: true).onError((error, stackTrace) async {
+    final downloadPath = (await getDownloadPath());
+    if (downloadPath == null) {
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $error'))
+          SnackBar(content: Text('ERROR: Could not find directory to export to.'))
         );
       }
-      final dataPath = (await getApplicationDocumentsDirectory()).path;
-      return File('$dataPath/scouting.csv').create(recursive: true);
+      return;
+    }
+
+    var gotFile = true;
+    final dataFile = await File('$downloadPath/scouting.csv').create(recursive: true).onError((error, stackTrace) {
+      gotFile = false;
+      return File('');
     });
+    if (!gotFile) {
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ERROR: Could not open export file.'))
+        );
+      }
+      return;
+    }
+
     var sink = dataFile.openWrite();
 
     for (var team in _teams) {
@@ -94,7 +122,7 @@ class TeamsModel extends ChangeNotifier {
 
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('exported $localPath/scouting.csv'))
+        SnackBar(content: Text('exported $downloadPath/scouting.csv'))
       );
     }
   }
