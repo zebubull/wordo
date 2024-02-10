@@ -54,8 +54,7 @@ Future<void> receiveTeams(BuildContext context) async {
   final datagram = await receiver.asStream(timeout: Duration(seconds: 20)).single;
   print('got data');
 
-  print(datagram!.data.toString());
-  final teamsList = await compute(_parseTeams, datagram.data.toString());
+  final teamsList = await compute(_parseTeams, String.fromCharCodes(datagram!.data));
 
   receiver.close();
   teamsModel.addTeams(teamsList);
