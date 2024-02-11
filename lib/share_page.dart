@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -29,7 +30,7 @@ Future<void> _shareTeams(_SharePageState state, InternetAddress? target) async {
 
   sock.add(utf8.encode(teamsJson));
   await sock.flush();
-  await sock.close();
+  sock.close();
 
   state.message('Teams shared');
 }
@@ -43,24 +44,20 @@ List<Team> _parseTeams(String data) {
 Future<void> _receiveTeams(_SharePageState state) async {
   final teamsModel = Provider.of<TeamsModel>(state.context, listen: false);
 
+  // Exit the receive state even if binding the socket fails
+  Timer(Duration(seconds: 12), () => state._endRecv());
+
   var server = await ServerSocket.bind('0.0.0.0', 8873);
   state._startRecv();
-
-  Future(() async {
-    await Future.delayed(Duration(seconds: 12));
-    state._endRecv();
-  });
-
 
   server.listen((socket) {
     socket.listen((List<int> data) async {
       final teamsList = await compute(_parseTeams, String.fromCharCodes(data));
-      state.message('${teamsModel.addTeams(teamsList)} teams received from ${socket.address.host}.');
+      state.message('${teamsModel.addTeams(teamsList)} teams received from ${socket.remoteAddress.host}.');
     });
   });
 
-  await Future.delayed(Duration(seconds: 10));
-  await server.close();
+  Timer(Duration(seconds: 10), () => server.close());
 }
 
 class _SharePageState extends State<SharePage> {
@@ -71,7 +68,7 @@ class _SharePageState extends State<SharePage> {
   bool _receiving = false;
 
   Future<void> getIP() async {
-    String addr = (await NetworkInfo().getWifiIP()) ?? 'Failed to get local IP';
+    String addr = (await NetworkInfo().getWifiIP()) ?? 'Not connected to WiFi';
 
     setState(() => myAddress = addr);
   }
@@ -83,11 +80,11 @@ class _SharePageState extends State<SharePage> {
   }
 
   void _startRecv() {
-    setState(() =>_receiving = true);
+    setState(() => _receiving = true);
   }
 
   void _endRecv() {
-    setState(() =>_receiving = false);
+    setState(() => _receiving = false);
   }
 
   void message(String text) {
@@ -111,60 +108,68 @@ class _SharePageState extends State<SharePage> {
                 color: theme.colorScheme.background,
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
               ),
-              child: ExpansionTile(
-                title: Text('Send'),
-                shape: const Border(),
-                initiallyExpanded: true,
-                children: [
-                  Form(
-                    key: _sendKey,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: TextFormField(
-                            decoration: const InputDecoration(hintText: 'Target IP', border: OutlineInputBorder()),
-                            keyboardType: TextInputType.number,
-                            validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid IP Adress' : null,
-                            onSaved: (String? val) => setState(() => targetAddress = InternetAddress(val!)),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          icon: Icon(Icons.file_upload_outlined),
-                          label: const Text('Share'),
-                          onPressed: () { if (!_sendKey.currentState!.validate()) return; _sendKey.currentState?.save(); _shareTeams(this, targetAddress); } ,
-                        ),
-                        SizedBox(height: 16.0),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: _makeSendTile(),
             ),
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.background,
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
               ),
-              child: ExpansionTile(
-                title: Text('Receive'),
-                shape: const Border(),
-                initiallyExpanded: true,
-                children: [
-                  BigCard(text: myAddress),
-                  SizedBox(height: 16.0),
-                  ElevatedButton.icon(
-                    icon: Icon(_receiving ? Icons.circle_outlined : Icons.file_download_outlined),
-                    label: Text(_receiving ? 'Waiting for data...' : 'Receive'),
-                    onPressed: () { if (!_receiving) { _receiveTeams(this); }},
-                  ),
-                  SizedBox(height: 16.0),
-                ],
-              ),
+              child: _makeReceiveTile(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  ExpansionTile _makeSendTile() {
+    return ExpansionTile(
+      title: Text('Send'),
+      shape: const Border(),
+      initiallyExpanded: true,
+      children: [
+        Form(
+          key: _sendKey,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(hintText: 'Target IP', border: OutlineInputBorder()),
+                  keyboardType: TextInputType.number,
+                  validator: (s) => s != null && InternetAddress.tryParse(s) == null ? 'Enter a valid IP Adress' : null,
+                  onSaved: (String? val) => setState(() => targetAddress = InternetAddress(val!)),
+                ),
+              ),
+              ElevatedButton.icon(
+                icon: Icon(Icons.file_upload_outlined),
+                label: const Text('Share'),
+                onPressed: () { if (!_sendKey.currentState!.validate()) return; _sendKey.currentState?.save(); _shareTeams(this, targetAddress); } ,
+              ),
+              SizedBox(height: 16.0),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  ExpansionTile _makeReceiveTile() {
+    return ExpansionTile(
+      title: Text('Receive'),
+      shape: const Border(),
+      initiallyExpanded: true,
+      children: [
+        BigCard(text: myAddress),
+        SizedBox(height: 16.0),
+        ElevatedButton.icon(
+          icon: Icon(_receiving ? Icons.circle_outlined : Icons.file_download_outlined),
+          label: Text(_receiving ? 'Waiting for data...' : 'Receive'),
+          onPressed: () { if (!_receiving) { _receiveTeams(this); }},
+        ),
+        SizedBox(height: 16.0),
+      ],
     );
   }
 }

@@ -14,10 +14,6 @@ class TeamSelectPage extends StatelessWidget {
       child: Consumer<TeamsModel> (
       builder: (context, teams, _) => ListView(
         children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('Select a team.'),
-        ),
         for (var team in teams.teams)
           ListTile(
             title: ElevatedButton(
