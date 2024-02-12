@@ -1,38 +1,35 @@
 {
-description = "Flutter 3.13.x";
-inputs = {
-  nixpkgs.url = "github:NixOS/nixpkgs/23.11";
-  flake-utils.url = "github:numtide/flake-utils";
-};
-outputs = { self, nixpkgs, flake-utils }:
-  flake-utils.lib.eachDefaultSystem (system:
-    let
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          android_sdk.accept_license = true;
-          allowUnfree = true;
+  description = "Flutter flake";
+
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.flake-compat = {
+    url = "github:edolstra/flake-compat";
+    flake = false;
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
         };
-      };
-      buildToolsVersion = "34.0.0";
-      androidComposition = pkgs.androidenv.composeAndroidPackages {
-        buildToolsVersions = [ buildToolsVersion "28.0.3" ];
-        platformVersions = [ "34" "28" ];
-        abiVersions = [ "armeabi-v7a" "arm64-v8a" ];
-      };
-      androidSdk = androidComposition.androidsdk;
-    in
-    {
-      devShell =
-        with pkgs; mkShell rec {
-          GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
-          buildInputs = [
-            flutter
-            xdg-user-dirs
-            android-studio
-            android-file-transfer
-            jdk17
-          ];
-        };
-    });
+      in {
+        devShells.default =
+          let android = pkgs.callPackage ./nix/android.nix { };
+          in pkgs.mkShell {
+            buildInputs = with pkgs; [
+              # from pkgs
+              flutter
+              jdk11
+              #from ./nix/*
+              android.platform-tools
+            ];
+
+            ANDROID_HOME = "${android.androidsdk}/libexec/android-sdk";
+            JAVA_HOME = pkgs.jdk11;
+            ANDROID_AVD_HOME = (toString ./.) + "/.android/avd";
+          };
+      });
 }
