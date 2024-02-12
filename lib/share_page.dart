@@ -10,31 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
 
-class SharePage extends StatefulWidget {
-  @override
-  State<SharePage> createState() => _SharePageState();
-}
-
-Future<void> _shareTeams(_SharePageState state, InternetAddress? target) async {
-  if (target == null) {
-    state.message('IP Address was null.');
-  }
-
-  final teamsJson = jsonEncode(Provider.of<TeamsModel>(state.context, listen: false).teams.map((t) => t.toJson()).toList());
-
-  var sock = await Socket.connect(target, 8873).onError((error, stackTrace) {
-    state.message(error.toString());
-    print(stackTrace);
-    return Future.error(error ?? 'error', stackTrace);
-  },);
-
-  sock.add(utf8.encode(teamsJson));
-  await sock.flush();
-  sock.close();
-
-  state.message('Teams shared');
-}
-
 List<Team> _parseTeams(String data) {
   final List json = jsonDecode(data);
 
@@ -60,39 +35,37 @@ Future<void> _receiveTeams(_SharePageState state) async {
   Timer(Duration(seconds: 10), () => server.close());
 }
 
+Future<void> _shareTeams(_SharePageState state, InternetAddress? target) async {
+  if (target == null) {
+    state.message('IP Address was null.');
+  }
+
+  final teamsJson = jsonEncode(Provider.of<TeamsModel>(state.context, listen: false).teams.map((t) => t.toJson()).toList());
+
+  var sock = await Socket.connect(target, 8873).onError((error, stackTrace) {
+    state.message(error.toString());
+    print(stackTrace);
+    return Future.error(error ?? 'error', stackTrace);
+  },);
+
+  sock.add(utf8.encode(teamsJson));
+  await sock.flush();
+  sock.close();
+
+  state.message('Teams shared');
+}
+
+class SharePage extends StatefulWidget {
+  @override
+  State<SharePage> createState() => _SharePageState();
+}
+
 class _SharePageState extends State<SharePage> {
   final _sendKey = GlobalKey<FormState>();
 
   InternetAddress? targetAddress;
   String myAddress = 'Getting IP';
   bool _receiving = false;
-
-  Future<void> getIP() async {
-    String addr = (await NetworkInfo().getWifiIP()) ?? 'Not connected to WiFi';
-
-    setState(() => myAddress = addr);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getIP();
-  }
-
-  void _startRecv() {
-    setState(() => _receiving = true);
-  }
-
-  void _endRecv() {
-    setState(() => _receiving = false);
-  }
-
-  void message(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text)),
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +93,47 @@ class _SharePageState extends State<SharePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> getIP() async {
+    String addr = (await NetworkInfo().getWifiIP()) ?? 'Not connected to WiFi';
+
+    setState(() => myAddress = addr);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getIP();
+  }
+
+  void message(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text)),
+    );
+  }
+
+  void _endRecv() {
+    setState(() => _receiving = false);
+  }
+
+
+  ExpansionTile _makeReceiveTile() {
+    return ExpansionTile(
+      title: Text('Receive'),
+      shape: const Border(),
+      initiallyExpanded: true,
+      children: [
+        BigCard(text: myAddress),
+        SizedBox(height: 16.0),
+        ElevatedButton.icon(
+          icon: Icon(_receiving ? Icons.circle_outlined : Icons.file_download_outlined),
+          label: Text(_receiving ? 'Waiting for data...' : 'Receive'),
+          onPressed: () { if (!_receiving) { _receiveTeams(this); }},
+        ),
+        SizedBox(height: 16.0),
+      ],
     );
   }
 
@@ -155,21 +169,7 @@ class _SharePageState extends State<SharePage> {
     );
   }
 
-  ExpansionTile _makeReceiveTile() {
-    return ExpansionTile(
-      title: Text('Receive'),
-      shape: const Border(),
-      initiallyExpanded: true,
-      children: [
-        BigCard(text: myAddress),
-        SizedBox(height: 16.0),
-        ElevatedButton.icon(
-          icon: Icon(_receiving ? Icons.circle_outlined : Icons.file_download_outlined),
-          label: Text(_receiving ? 'Waiting for data...' : 'Receive'),
-          onPressed: () { if (!_receiving) { _receiveTeams(this); }},
-        ),
-        SizedBox(height: 16.0),
-      ],
-    );
+  void _startRecv() {
+    setState(() => _receiving = true);
   }
 }
