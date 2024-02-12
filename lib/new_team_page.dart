@@ -3,14 +3,7 @@ import 'package:biden_blast/teams_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class NewTeamPage extends StatefulWidget {
-  final Function(int)? onTeamCreated;
-  const NewTeamPage({super.key, this.onTeamCreated});
-
-  @override
-  State<NewTeamPage> createState() => _NewTeamPageState();
-}
-
+/// Validation callback for team number.
 String? _validateNumber(String? value) {
   final isInvalidNumber = value == null || value.length > 5 || int.tryParse(value) == null;
   if (isInvalidNumber) {
@@ -20,12 +13,21 @@ String? _validateNumber(String? value) {
   }
 }
 
+class NewTeamPage extends StatefulWidget {
+  final Function(int)? onTeamCreated;
+  const NewTeamPage({super.key, this.onTeamCreated});
+
+  @override
+  State<NewTeamPage> createState() => _NewTeamPageState();
+}
+
 class _NewTeamPageState extends State<NewTeamPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   int _id = 0;
   String _name = "";
 
+  /// Validate the form and, if valid, add a new team and swap to it.
   void _formSubmit(BuildContext context) {
     var formState = _formKey.currentState!;
     if (formState.validate()) {
