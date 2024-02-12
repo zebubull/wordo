@@ -77,32 +77,7 @@ class _HomePageState extends State<HomePage> {
         body: Row(
           children: [
             SafeArea(
-              child: Consumer<TeamsModel>(
-                builder: (context, teams, _) => NavigationRail(
-                  extended: constraints.maxWidth >= 700,
-                  destinations: [
-                    NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
-                    NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
-                    NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
-                    NavigationRailDestination(icon: Icon(Icons.share), label: Text('Share')),
-                    NavigationRailDestination(
-                      icon: Icon(teams.saved ? Icons.check_circle_outline : Icons.save_outlined),
-                      label: Text(teams.saved ? 'Changes Saved' : 'Unsaved Changes'),
-                    ),
-                    NavigationRailDestination(icon: Icon(Icons.archive), label: Text('Export Data')),
-                  ],
-                  selectedIndex: selectedIndex == 4 ? 1 : selectedIndex,
-                  onDestinationSelected: (dest) {
-                    if (dest == 4) {
-                      Provider.of<TeamsModel>(context, listen: false).save(context);
-                    } else if (dest == 5) {
-                      Provider.of<TeamsModel>(context, listen: false).export(context);
-                    } else {
-                      setState(() => selectedIndex = dest);
-                    }
-                  },
-                ),
-              ),
+              child: _makeNavRail(constraints),
             ),
             Expanded(
               child: Container(
@@ -115,6 +90,35 @@ class _HomePageState extends State<HomePage> {
       );
     });
   }
+
+  Consumer<TeamsModel> _makeNavRail(BoxConstraints constraints) {
+    return Consumer<TeamsModel>(
+      builder: (context, teams, _) => NavigationRail(
+        extended: constraints.maxWidth >= 700,
+        destinations: [
+          NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
+          NavigationRailDestination(icon: Icon(Icons.menu), label: Text('Teams')),
+          NavigationRailDestination(icon: Icon(Icons.add), label: Text('New Team')),
+          NavigationRailDestination(icon: Icon(Icons.share), label: Text('Share')),
+          NavigationRailDestination(
+            icon: Icon(teams.saved ? Icons.check_circle_outline : Icons.save_outlined),
+            label: Text(teams.saved ? 'Changes Saved' : 'Unsaved Changes'),
+          ),
+          NavigationRailDestination(icon: Icon(Icons.archive), label: Text('Export Data')),
+        ],
+        selectedIndex: selectedIndex == 4 ? 1 : selectedIndex,
+        onDestinationSelected: (dest) {
+          if (dest == 4) {
+            Provider.of<TeamsModel>(context, listen: false).save(context);
+          } else if (dest == 5) {
+            Provider.of<TeamsModel>(context, listen: false).export(context);
+          } else {
+            setState(() => selectedIndex = dest);
+          }
+        },
+      ),
+    );
+  }
 }
 
 class MainPage extends StatelessWidget {
@@ -126,7 +130,7 @@ class MainPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           BigCard(text: "Scouting App"),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           Image(image: AssetImage('assets/biden.jpg')),
           SizedBox(height: 10),
           const Text("Sponsored by Sleepy Joe Brandon"),
