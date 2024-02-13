@@ -65,6 +65,7 @@ class _TeamPageState extends State<TeamPage> {
         child: ListView(
           physics: NeverScrollableScrollPhysics(),
           children: [
+            _makePitsTile(theme, team),
             _makeAutonTile(theme, team),
             _makeTeleTile(theme, team),
             _makeEndgameTile(theme, team),
@@ -75,12 +76,35 @@ class _TeamPageState extends State<TeamPage> {
     );
   }
 
+  Container _makePitsTile(ThemeData theme, Team team) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.background,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
+      ),
+      child: ExpansionTile(
+        title: Text('Pre-match'),
+        shape: const Border(),
+        children: [
+          _TeamWeightSlider(
+            title: const Text('Weight (lbs)'),
+            value: team.weight,
+            onChanged: (v) => _update(() => team.weight = v),
+          ),
+          SizedBox(height: 10.0),
+          SizedBox(height: 10.0),
+          SizedBox(height: 10.0),
+        ],
+      ),
+    );
+  }
+
   /// Create the tile for autonomous data.
   Container _makeAutonTile(ThemeData theme, Team team) {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.background,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
+        borderRadius: BorderRadius.only()
       ),
       child: ExpansionTile(
         title: Text('Autonomous'),
@@ -176,17 +200,17 @@ class _TeamPageState extends State<TeamPage> {
         title: Text('Ratings'),
         shape: const Border(),
         children: [
-          _TeamNumberSlider(
+          _TeamRatingSlider(
             onChanged: (v) => _update(() => team.offenseScore = v),
             title: Text("Offense (${team.offenseScore})"),
             value: team.offenseScore,
           ),
-          _TeamNumberSlider(
+          _TeamRatingSlider(
             onChanged: (v) => _update(() => team.defenseScore = v),
             title: Text("Defense (${team.defenseScore})"),
             value: team.defenseScore,
           ),
-          _TeamNumberSlider(
+          _TeamRatingSlider(
             onChanged: (v) => _update(() => team.overallScore = v),
             title: Text("Overall (${team.overallScore})"),
             value: team.overallScore,
@@ -230,12 +254,12 @@ class _TeamNumberView extends StatelessWidget {
 }
 
 /// A slider with a label and callback.
-class _TeamNumberSlider extends StatelessWidget {
+class _TeamRatingSlider extends StatelessWidget {
   final Function(double) onChanged;
   final Widget title;
   final double value;
 
-  _TeamNumberSlider({required this.onChanged, required this.title, required this.value});
+  _TeamRatingSlider({required this.onChanged, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -250,6 +274,35 @@ class _TeamNumberSlider extends StatelessWidget {
             min: 0.0,
             max: 10.0,
             divisions: 10,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A slider with a label and callback.
+class _TeamWeightSlider extends StatelessWidget {
+  final Function(double) onChanged;
+  final Widget title;
+  final double value;
+
+  _TeamWeightSlider({required this.onChanged, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Wrap(
+        direction: Axis.horizontal,
+        children: [
+          title,
+          Slider(
+            value: value,
+            min: 20.0,
+            max: 130.0,
+            divisions: 218,
             onChanged: onChanged,
           ),
         ],
@@ -273,6 +326,24 @@ class _TeamBoolView extends StatelessWidget {
       children: [
         title,
         Checkbox(value: value, onChanged: onChanged)
+      ],
+    );
+  }
+}
+
+class _TeamEnumBox<T extends Enum> extends StatelessWidget {
+  final Function(T) onChanged;
+  final Widget title;
+  final T selectedItem;
+
+  _TeamEnumBox({required this.onChanged, required this.title, required this.selectedItem});
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownMenu(
+      initialSelection: selectedItem,
+      enableSearch: false,
+      dropdownMenuEntries: [
       ],
     );
   }
