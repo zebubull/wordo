@@ -59,20 +59,23 @@ class _TeamPageState extends State<TeamPage> {
 
   /// Create the body widget containing the rating and evaluation tiles.
   SliverPadding _makeBody(ThemeData theme, Team team) {
+    final buildFunctions = <Container Function(ThemeData, Team)>[
+      _makePitsTile,
+      _makeAutonTile,
+      _makeTeleTile,
+      _makeEndgameTile,
+      _makeRatingsTile,
+    ];
     return SliverPadding(
       padding: EdgeInsets.all(20.0),
-      sliver: SliverFillRemaining(
-        child: ListView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            _makePitsTile(theme, team),
-            _makeAutonTile(theme, team),
-            _makeTeleTile(theme, team),
-            _makeEndgameTile(theme, team),
-            _makeRatingsTile(theme, team),
-          ],
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, i) { 
+              if (i >= buildFunctions.length) return null;
+              return buildFunctions[i].call(theme, team);
+            },
+          ),
         ),
-      ),
     );
   }
 
@@ -87,12 +90,46 @@ class _TeamPageState extends State<TeamPage> {
         shape: const Border(),
         children: [
           _TeamWeightSlider(
-            title: const Text('Weight (lbs)'),
+            title: Text('Weight (${team.weight} lbs)'),
             value: team.weight,
             onChanged: (v) => _update(() => team.weight = v),
           ),
+          _TeamNumberView(
+            title: const Text('Width (in)'),
+            label: Text('${team.width}'),
+            onPressed: (a) => _update(() => team.width = (team.width + a * 0.5).clamp(15.0, 40.0)),
+          ),
+          SizedBox(height: 20.0),
+          _TeamNumberView(
+            title: const Text('Length (in)'),
+            label: Text('${team.length}'),
+            onPressed: (a) => _update(() => team.length = (team.length + a * 0.5).clamp(15.0, 40.0)),
+          ),
+          SizedBox(height: 20.0),
+          _TeamNumberView(
+            title: const Text('Height (in)'),
+            label: Text('${team.height}'),
+            onPressed: (a) => _update(() => team.height = (team.height + a * 0.5).clamp(15.0, 40.0)),
+          ),
+          SizedBox(height: 20.0),
+          DropdownMenu(
+            hintText: 'Drivetrain',
+            initialSelection: Drivetrain.trank,
+            onSelected: (d) => _update(() { team.drivetrain = d ?? Drivetrain.trank; }),
+            dropdownMenuEntries: [
+              for (var drive in Drivetrain.values)
+                DropdownMenuEntry(
+                  label: drive.toFriendly(),
+                  value: drive,
+                ),
+            ],
+          ),
           SizedBox(height: 10.0),
-          SizedBox(height: 10.0),
+          _TeamBoolView(
+            title: const Text('Below Stage'),
+            value: team.underStage,
+            onChanged: (b) => _update(() { if (b != null) team.underStage = b; }),
+          ),
           SizedBox(height: 10.0),
         ],
       ),
@@ -215,6 +252,26 @@ class _TeamPageState extends State<TeamPage> {
             title: Text("Overall (${team.overallScore})"),
             value: team.overallScore,
           ),
+          _TeamSizeSlider(
+            onChanged: (v) => _update(() => team.cycleTime = v),
+            title: Text('Cycle Time (${team.cycleTime}s)'),
+            value: team.cycleTime,
+          ),
+          SizedBox(height: 20.0),
+          const Text('Pickup Zones'),
+          DropdownMenu(
+            hintText: 'Pickup Zones',
+            initialSelection: Pickup.defenseBot,
+            onSelected: (p) => _update(() { team.pickup = p ?? Pickup.defenseBot; }),
+            dropdownMenuEntries: [
+              for (var zone in Pickup.values)
+                DropdownMenuEntry(
+                  label: zone.toFriendly(),
+                  value: zone,
+                ),
+            ],
+          ),
+          SizedBox(height: 20.0),
         ],
       ),
     );
@@ -302,7 +359,35 @@ class _TeamWeightSlider extends StatelessWidget {
             value: value,
             min: 20.0,
             max: 130.0,
-            divisions: 218,
+            divisions: 220,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TeamSizeSlider extends StatelessWidget {
+  final Function(double) onChanged;
+  final Widget title;
+  final double value;
+
+  _TeamSizeSlider({required this.onChanged, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Wrap(
+        direction: Axis.horizontal,
+        children: [
+          title,
+          Slider(
+            value: value,
+            min: 1.0,
+            max: 40.0,
+            divisions: 156,
             onChanged: onChanged,
           ),
         ],
@@ -331,20 +416,3 @@ class _TeamBoolView extends StatelessWidget {
   }
 }
 
-class _TeamEnumBox<T extends Enum> extends StatelessWidget {
-  final Function(T) onChanged;
-  final Widget title;
-  final T selectedItem;
-
-  _TeamEnumBox({required this.onChanged, required this.title, required this.selectedItem});
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownMenu(
-      initialSelection: selectedItem,
-      enableSearch: false,
-      dropdownMenuEntries: [
-      ],
-    );
-  }
-}

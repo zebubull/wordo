@@ -12,6 +12,15 @@ extension DrivetrainFriendly on Drivetrain {
       Drivetrain.mecanum => "Mecanum",
     };
   }
+
+  static Drivetrain fromFriendly(String friendly) {
+    return switch (friendly) {
+      "Trank" => Drivetrain.trank,
+      "Swerve" => Drivetrain.swerve,
+      "Mecanum" => Drivetrain.mecanum,
+      _ => Drivetrain.trank,
+    };
+  }
 }
 
 enum Pickup {
@@ -21,13 +30,23 @@ enum Pickup {
   both,
 }
 
-extension ParseFriendly on Pickup {
+extension PickupFriendly on Pickup {
   String toFriendly() {
     return switch (this) {
       Pickup.defenseBot => "None",
       Pickup.floor => "Floor",
       Pickup.substation => "Substation",
       Pickup.both => "Both",
+    };
+  }
+
+  static Pickup fromFriendly(String friendly) {
+    return switch (friendly) {
+      "None" => Pickup.defenseBot,
+      "Floor" => Pickup.floor,
+      "Substation" => Pickup.substation,
+      "Both" => Pickup.both,
+      _ => Pickup.defenseBot,
     };
   }
 }
@@ -39,7 +58,9 @@ class Team {
     double weight = 80.0;
     bool underStage = false;
     Drivetrain drivetrain = Drivetrain.trank;
-    String funFact = '';
+    double width = 20.0;
+    double length = 20.0;
+    double height = 20.0;
 
     int ampAuto = 0;
     int speakerAuto = 0;
@@ -56,7 +77,7 @@ class Team {
     double offenseScore = 5.0;
     double defenseScore = 5.0;
     double overallScore = 5.0;
-    double cycleTime = 0.0;
+    double cycleTime = 5.0;
 
 
     Team({required this.id, required this.name});
@@ -78,10 +99,12 @@ class Team {
       'harmony': harmony,
       'weight': weight,
       'under_stage': underStage,
-      'drivetrain': drivetrain,
-      'fun_fact': funFact,
-      'pickup': pickup,
+      'drivetrain': drivetrain.toFriendly(),
+      'pickup': pickup.toFriendly(),
       'cycle_time': cycleTime,
+      'width': width,
+      'length': length,
+      'height': height,
     };
 
     Team.fromJson(Map<String, dynamic> json) {
@@ -100,9 +123,11 @@ class Team {
       harmony = json['harmony'];
       weight = json['weight'];
       underStage = json['under_stage'];
-      drivetrain = json['drivetrain'];
-      funFact = json['fun_fact'];
-      pickup = json['pickup'];
+      drivetrain = DrivetrainFriendly.fromFriendly(json['drivetrain']);
+      pickup = PickupFriendly.fromFriendly(json['pickup']);
       cycleTime = json['cycle_time'];
+      width = json['width'];
+      length = json['length'];
+      height = json['height'];
     }
 }
