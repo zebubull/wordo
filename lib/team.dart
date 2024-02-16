@@ -52,6 +52,7 @@ extension PickupFriendly on Pickup {
 }
 
 class Match {
+  final int number;
   int ampAuto = 0;
   int speakerAuto = 0;
   bool leaves = false;
@@ -69,7 +70,7 @@ class Match {
   double overallScore = 5.0;
   double cycleTime = 5.0;
 
-  Match();
+  Match({required this.number});
 
   Map<String, dynamic> toJson() =>
   {
@@ -86,9 +87,10 @@ class Match {
     'harmony': harmony,
     'pickup': pickup.toFriendly(),
     'cycle_time': cycleTime,
+    'number': number,
   };
 
-  Match.fromJson(Map<String, dynamic> json) {
+  Match.fromJson(Map<String, dynamic> json) : number = json['number'] {
     ampAuto = json['amp_auto'];
     speakerAuto = json['speaker_auto'];
     ampTele = json['amp_tele'];
@@ -142,6 +144,6 @@ class Team {
     width = json['width'];
     length = json['length'];
     height = json['height'];
-    matches = (json['matches'] as List<Map<String, dynamic>>).map((j) => Match.fromJson(j)).toList();
+    matches = (json['matches'] as List<dynamic>).map((j) => Match.fromJson(j as Map<String, dynamic>)).toList();
   }
 }

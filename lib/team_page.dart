@@ -1,3 +1,4 @@
+import 'package:biden_blast/big_card.dart';
 import 'package:biden_blast/team.dart';
 import 'package:biden_blast/teams_model.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,28 @@ class TeamPage extends StatefulWidget {
   State<TeamPage> createState() => _TeamPageState();
 }
 
-class _TeamPageState extends State<TeamPage> {
+class _TeamPageState extends State<TeamPage> with SingleTickerProviderStateMixin {
   /// The team bound to this page. Do not directly edit this, instead use [_update].
   Team? _baseTeam;
+
+  late TabController _tabController;
+  static const List<Tab> _tabs = [
+    Tab( text: "PITS"),
+    Tab( text: "LATEST MATCH"),
+    Tab( text: "OLD MATCHES"),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: _tabs.length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   /// Set the state with the provided callback and mark the team as dirty. This
   /// function should only be used when updating `_baseTeam`.
@@ -29,69 +49,125 @@ class _TeamPageState extends State<TeamPage> {
     _baseTeam ??= Provider.of<TeamsModel>(context).teams.firstWhere((t) => t.id == widget.id);
     Team team = _baseTeam!;
 
-    return CustomScrollView(
-      slivers: [ 
+    return Column(
+      children: [ 
         _makeTitleBar(theme, team),
-        _makeBody(theme, team),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _makePitsTile(theme, team),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _makeLatestMatch(theme, team),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _makeOldMatches(theme, team),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  /// Create the title bar to display the team name and number.
-  SliverSafeArea _makeTitleBar(ThemeData theme, Team team) {
-    return SliverSafeArea(
-      sliver: SliverAppBar(
-        pinned: true,
-        floating: true,
-        backgroundColor: theme.colorScheme.primary,
-        flexibleSpace: FlexibleSpaceBar(
-          title: Wrap(
-            direction: Axis.horizontal,
+  int _matchNumber = 0;
+
+  Widget _makeLatestMatch(ThemeData theme, Team team) {
+    final match = team.matches.lastOrNull;
+    final titleStyle = theme.textTheme.titleLarge!;
+  
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text('(${team.id}) '), Text(team.name),
-              //style: titleStyle
+              SizedBox(
+                width: 160,
+                child: TextField(
+                  decoration: InputDecoration(hintText: 'Match #', border: OutlineInputBorder()),
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) => setState(() => _matchNumber = int.tryParse(v) ?? 1),
+                ),
+              ),
+              SizedBox(width: 16.0),
+              IconButton.filled(
+                icon: Icon(Icons.add),
+                onPressed: () => _update(() => team.matches.add(Match(number: _matchNumber))),
+              ),
             ],
           ),
         ),
-      ),
+        if (match != null)
+        Center(child: Text('Match ${match.number}', style: titleStyle)),
+        if (match != null)
+        SizedBox(height: 16.0),
+        if (match != null)
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.background,
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+            child: Column(
+              children: [
+                _makeAutonTile(theme, match),
+                _makeTeleTile(theme, match),
+                _makeEndgameTile(theme, match),
+                _makeRatingsTile(theme, match),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
-  /// Create the body widget containing the rating and evaluation tiles.
-  SliverPadding _makeBody(ThemeData theme, Team team) {
-    return SliverPadding(
-      padding: EdgeInsets.all(20.0),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, i) { 
-              if (i == 0) {
-                return Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: ElevatedButton.icon(
-                    label: const Text('Add Match'),
-                    icon: const Icon(Icons.add),
-                    onPressed: () => _update(() => team.matches.add(Match())),
-                  ),
-                );
-              }
-              if (i == 1) return _makePitsTile(theme, team);
-              if (i <= team.matches.length + 1) return _makeMatch(theme, team.matches[i-2], 'Match ${i - 1}', i == team.matches.length + 1);
-              return null;
-            },
-          ),
+  ListView _makeOldMatches(ThemeData theme, Team team) {
+    return ListView(
+      children: [
+        for (var (i, match) in team.matches.indexed)
+          _makeMatch(theme, match, team.matches.length, i)
+      ]
+    );
+  }
+
+  /// Create the title bar to display the team name and number.
+  SafeArea _makeTitleBar(ThemeData theme, Team team) {
+    final selectedTheme = theme.textTheme.bodyMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+      fontWeight: FontWeight.bold,
+    );
+    final unselectedTheme = theme.textTheme.bodyMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+    final titleTheme = theme.textTheme.titleLarge!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+    return SafeArea(
+      child: SizedBox(
+        height: 100,
+        child: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          title: Text('(${team.id}) ${team.name}', style: titleTheme),
+          bottom: TabBar(tabs: _tabs, controller: _tabController, labelStyle: selectedTheme, unselectedLabelStyle: unselectedTheme,),
         ),
+      ),
     );
   }
 
   Container _makePitsTile(ThemeData theme, Team team) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
+        borderRadius: BorderRadius.all(Radius.circular(16.0)),
         color: theme.colorScheme.background,
       ),
-      child: ExpansionTile(
-        title: Text('Pre-match'),
-        shape: const Border(),
+      child: ListView(
         children: [
           _TeamWeightSlider(
             title: Text('Weight (${team.weight} lbs)'),
@@ -116,17 +192,20 @@ class _TeamPageState extends State<TeamPage> {
             onPressed: (a) => _update(() => team.height = (team.height + a * 0.5).clamp(15.0, 40.0)),
           ),
           SizedBox(height: 20.0),
-          DropdownMenu(
-            hintText: 'Drivetrain',
-            initialSelection: Drivetrain.trank,
-            onSelected: (d) => _update(() { team.drivetrain = d ?? Drivetrain.trank; }),
-            dropdownMenuEntries: [
-              for (var drive in Drivetrain.values)
-                DropdownMenuEntry(
-                  label: drive.toFriendly(),
-                  value: drive,
-                ),
-            ],
+          Align(
+            alignment: Alignment.center,
+            child: DropdownMenu(
+              hintText: 'Drivetrain',
+              initialSelection: Drivetrain.trank,
+              onSelected: (d) => _update(() { team.drivetrain = d ?? Drivetrain.trank; }),
+              dropdownMenuEntries: [
+                for (var drive in Drivetrain.values)
+                  DropdownMenuEntry(
+                    label: drive.toFriendly(),
+                    value: drive,
+                  ),
+              ],
+            ),
           ),
           SizedBox(height: 10.0),
           _TeamBoolView(
@@ -140,22 +219,37 @@ class _TeamPageState extends State<TeamPage> {
     );
   }
 
-  Container _makeMatch(ThemeData theme, Match match, String title, bool isLast) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.background,
-        borderRadius: isLast ?
-          BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
-          : BorderRadius.only()
-      ),
-      child: ExpansionTile(
-        title: Text(title),
-        children: [
-          _makeAutonTile(theme, match),
-          _makeTeleTile(theme, match),
-          _makeEndgameTile(theme, match),
-          _makeRatingsTile(theme, match),
-        ],
+  Padding _makeMatch(ThemeData theme, Match match, int totalMatches, int index) {
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.background,
+          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        ),
+        child: ExpansionTile(
+          initiallyExpanded: totalMatches == 1,
+          title: Text('Match ${match.number}'),
+          shape: const Border(),
+          children: [
+            Divider(),
+            _makeAutonTile(theme, match),
+            _makeTeleTile(theme, match),
+            _makeEndgameTile(theme, match),
+            _makeRatingsTile(theme, match),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton.filled(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _update(() => _baseTeam!.matches.removeAt(index)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
