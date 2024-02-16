@@ -59,20 +59,24 @@ class _TeamPageState extends State<TeamPage> {
 
   /// Create the body widget containing the rating and evaluation tiles.
   SliverPadding _makeBody(ThemeData theme, Team team) {
-    final buildFunctions = <Container Function(ThemeData, Team)>[
-      _makePitsTile,
-      _makeAutonTile,
-      _makeTeleTile,
-      _makeEndgameTile,
-      _makeRatingsTile,
-    ];
     return SliverPadding(
       padding: EdgeInsets.all(20.0),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, i) { 
-              if (i >= buildFunctions.length) return null;
-              return buildFunctions[i].call(theme, team);
+              if (i == 0) {
+                return Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: ElevatedButton.icon(
+                    label: const Text('Add Match'),
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _update(() => team.matches.add(Match())),
+                  ),
+                );
+              }
+              if (i == 1) return _makePitsTile(theme, team);
+              if (i <= team.matches.length + 1) return _makeMatch(theme, team.matches[i-2], 'Match ${i - 1}', i == team.matches.length + 1);
+              return null;
             },
           ),
         ),
@@ -82,8 +86,8 @@ class _TeamPageState extends State<TeamPage> {
   Container _makePitsTile(ThemeData theme, Team team) {
     return Container(
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
         color: theme.colorScheme.background,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))
       ),
       child: ExpansionTile(
         title: Text('Pre-match'),
@@ -136,144 +140,146 @@ class _TeamPageState extends State<TeamPage> {
     );
   }
 
-  /// Create the tile for autonomous data.
-  Container _makeAutonTile(ThemeData theme, Team team) {
+  Container _makeMatch(ThemeData theme, Match match, String title, bool isLast) {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.background,
-        borderRadius: BorderRadius.only()
+        borderRadius: isLast ?
+          BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
+          : BorderRadius.only()
       ),
       child: ExpansionTile(
-        title: Text('Autonomous'),
-        shape: const Border(),
+        title: Text(title),
         children: [
-          _TeamNumberView(
-            title: const Text('Amp'),
-            label: Text('${team.ampAuto}'),
-            onPressed: (a) => _update(() => team.ampAuto = (team.ampAuto + a).clamp(0, 20)),
-          ),
-          SizedBox(height: 10.0),
-          _TeamNumberView(
-            title: const Text('Speaker'),
-            label: Text('${team.speakerAuto}'),
-            onPressed: (a) => _update(() => team.speakerAuto = (team.speakerAuto + a).clamp(0, 20)),
-          ),
-          SizedBox(height: 10.0),
-          _TeamBoolView(
-            title: const Text('Leave'),
-            value: team.leaves,
-            onChanged: (b) => _update(() => team.leaves = b ?? false),
-          ),
-          SizedBox(height: 10.0),
+          _makeAutonTile(theme, match),
+          _makeTeleTile(theme, match),
+          _makeEndgameTile(theme, match),
+          _makeRatingsTile(theme, match),
         ],
       ),
+    );
+  }
+
+  /// Create the tile for autonomous data.
+  ExpansionTile _makeAutonTile(ThemeData theme, Match match) {
+    return ExpansionTile(
+      title: Text('Autonomous'),
+      shape: const Border(),
+      children: [
+        _TeamNumberView(
+          title: const Text('Amp'),
+          label: Text('${match.ampAuto}'),
+          onPressed: (a) => _update(() => match.ampAuto = (match.ampAuto + a).clamp(0, 20)),
+        ),
+        SizedBox(height: 10.0),
+        _TeamNumberView(
+          title: const Text('Speaker'),
+          label: Text('${match.speakerAuto}'),
+          onPressed: (a) => _update(() => match.speakerAuto = (match.speakerAuto + a).clamp(0, 20)),
+        ),
+        SizedBox(height: 10.0),
+        _TeamBoolView(
+          title: const Text('Leave'),
+          value: match.leaves,
+          onChanged: (b) => _update(() => match.leaves = b ?? false),
+        ),
+        SizedBox(height: 10.0),
+      ],
     );
   }
 
   /// Create the tile for teleoperated data.
-  Container _makeTeleTile(ThemeData theme, Team team) {
-    return Container(
-      color: theme.colorScheme.background,
-      child: ExpansionTile(
-        title: Text('Teleoperated'),
-        shape: const Border(),
-        children: [
-          _TeamNumberView(
-            title: const Text('Amp'),
-            label: Text('${team.ampTele}'),
-            onPressed: (a) => _update(() => team.ampTele = (team.ampTele + a).clamp(0, 20)),
-          ),
-          SizedBox(height: 10.0),
-          _TeamNumberView(
-            title: const Text('Speaker'),
-            label: Text('${team.speakerTele}'),
-            onPressed: (a) => _update(() => team.speakerTele = (team.speakerTele + a).clamp(0, 20)),
-          ),
-          SizedBox(height: 10.0),
-        ]
-      ),
+  ExpansionTile _makeTeleTile(ThemeData theme, Match match) {
+    return ExpansionTile(
+      title: Text('Teleoperated'),
+      shape: const Border(),
+      children: [
+        _TeamNumberView(
+          title: const Text('Amp'),
+          label: Text('${match.ampTele}'),
+          onPressed: (a) => _update(() => match.ampTele = (match.ampTele + a).clamp(0, 20)),
+        ),
+        SizedBox(height: 10.0),
+        _TeamNumberView(
+          title: const Text('Speaker'),
+          label: Text('${match.speakerTele}'),
+          onPressed: (a) => _update(() => match.speakerTele = (match.speakerTele + a).clamp(0, 20)),
+        ),
+        SizedBox(height: 10.0),
+      ]
     );
   }
 
   /// Create the tile for endgame data.
-  Container _makeEndgameTile(ThemeData theme, Team team) {
-    return Container(
-      color: theme.colorScheme.background,
-      child: ExpansionTile(
-        title: Text('Endgame'),
-        shape: const Border(),
-        children: [
-          _TeamBoolView(
-            title: const Text('Hang'),
-            value: team.hangs,
-            onChanged: (b) => _update(() => team.hangs = b ?? false),
-          ),
-          SizedBox(height: 10.0),
-          _TeamBoolView(
-            title: const Text('Trap'),
-            value: team.trap,
-            onChanged: (b) => _update(() => team.trap = b ?? false),
-          ),
-          SizedBox(height: 10.0),
-          _TeamBoolView(
-            title: const Text('Harmony'),
-            value: team.harmony,
-            onChanged: (b) => _update(() => team.harmony = b ?? false),
-          ),
-          SizedBox(height: 10.0),
-        ]
-      ),
+  ExpansionTile _makeEndgameTile(ThemeData theme, Match match) {
+    return ExpansionTile(
+      title: Text('Endgame'),
+      shape: const Border(),
+      children: [
+        _TeamBoolView(
+          title: const Text('Hang'),
+          value: match.hangs,
+          onChanged: (b) => _update(() => match.hangs = b ?? false),
+        ),
+        SizedBox(height: 10.0),
+        _TeamBoolView(
+          title: const Text('Trap'),
+          value: match.trap,
+          onChanged: (b) => _update(() => match.trap = b ?? false),
+        ),
+        SizedBox(height: 10.0),
+        _TeamBoolView(
+          title: const Text('Harmony'),
+          value: match.harmony,
+          onChanged: (b) => _update(() => match.harmony = b ?? false),
+        ),
+        SizedBox(height: 10.0),
+      ]
     );
   }
 
   /// Create the tile for qualitative ratings.
-  Container _makeRatingsTile(ThemeData theme, Team team) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.background,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0))
-      ),
-      child: ExpansionTile(
-        title: Text('Ratings'),
-        shape: const Border(),
-        children: [
-          _TeamRatingSlider(
-            onChanged: (v) => _update(() => team.offenseScore = v),
-            title: Text("Offense (${team.offenseScore})"),
-            value: team.offenseScore,
-          ),
-          _TeamRatingSlider(
-            onChanged: (v) => _update(() => team.defenseScore = v),
-            title: Text("Defense (${team.defenseScore})"),
-            value: team.defenseScore,
-          ),
-          _TeamRatingSlider(
-            onChanged: (v) => _update(() => team.overallScore = v),
-            title: Text("Overall (${team.overallScore})"),
-            value: team.overallScore,
-          ),
-          _TeamSizeSlider(
-            onChanged: (v) => _update(() => team.cycleTime = v),
-            title: Text('Cycle Time (${team.cycleTime}s)'),
-            value: team.cycleTime,
-          ),
-          SizedBox(height: 20.0),
-          const Text('Pickup Zones'),
-          DropdownMenu(
-            hintText: 'Pickup Zones',
-            initialSelection: Pickup.defenseBot,
-            onSelected: (p) => _update(() { team.pickup = p ?? Pickup.defenseBot; }),
-            dropdownMenuEntries: [
-              for (var zone in Pickup.values)
-                DropdownMenuEntry(
-                  label: zone.toFriendly(),
-                  value: zone,
-                ),
-            ],
-          ),
-          SizedBox(height: 20.0),
-        ],
-      ),
+  ExpansionTile _makeRatingsTile(ThemeData theme, Match match) {
+    return ExpansionTile(
+      title: Text('Ratings'),
+      shape: const Border(),
+      children: [
+        _TeamRatingSlider(
+          onChanged: (v) => _update(() => match.offenseScore = v),
+          title: Text("Offense (${match.offenseScore})"),
+          value: match.offenseScore,
+        ),
+        _TeamRatingSlider(
+          onChanged: (v) => _update(() => match.defenseScore = v),
+          title: Text("Defense (${match.defenseScore})"),
+          value: match.defenseScore,
+        ),
+        _TeamRatingSlider(
+          onChanged: (v) => _update(() => match.overallScore = v),
+          title: Text("Overall (${match.overallScore})"),
+          value: match.overallScore,
+        ),
+        _TeamSizeSlider(
+          onChanged: (v) => _update(() => match.cycleTime = v),
+          title: Text('Cycle Time (${match.cycleTime}s)'),
+          value: match.cycleTime,
+        ),
+        SizedBox(height: 20.0),
+        const Text('Pickup Zones'),
+        DropdownMenu(
+          hintText: 'Pickup Zones',
+          initialSelection: Pickup.defenseBot,
+          onSelected: (p) => _update(() { match.pickup = p ?? Pickup.defenseBot; }),
+          dropdownMenuEntries: [
+            for (var zone in Pickup.values)
+              DropdownMenuEntry(
+                label: zone.toFriendly(),
+                value: zone,
+              ),
+          ],
+        ),
+        SizedBox(height: 20.0),
+      ],
     );
   }
 }

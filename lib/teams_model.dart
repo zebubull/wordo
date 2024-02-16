@@ -132,8 +132,10 @@ class TeamsModel extends ChangeNotifier {
 
     sink.writeln('ID,NAME,WGHT,UNDER,DRIVE,SIZE,AMP_A,SPK_A,LEAVE,AMP_T,SPK_T,PICKUP,HANG,TRAP,HMNY,OFF,DEF,OVR,CYCLE');
 
+    // TODO: Finish this later
     for (var team in _teams) {
-      sink.writeln('${team.id},"${team.name}",${team.weight},${team.underStage},${team.drivetrain.toFriendly().toUpperCase()},${team.width}x${team.height}x${team.length},${team.ampAuto},${team.speakerAuto},${team.leaves},${team.ampTele},${team.speakerTele},${team.pickup.toFriendly().toUpperCase()},${team.hangs},${team.trap},${team.harmony},${team.offenseScore},${team.defenseScore},${team.overallScore},${team.cycleTime}');
+      // sink.writeln('${team.id},"${team.name}",${team.weight},${team.underStage},${team.drivetrain.toFriendly().toUpperCase()},${team.width}x${team.height}x${team.length},${team.ampAuto},${team.speakerAuto},${team.leaves},${team.ampTele},${team.speakerTele},${team.pickup.toFriendly().toUpperCase()},${team.hangs},${team.trap},${team.harmony},${team.offenseScore},${team.defenseScore},${team.overallScore},${team.cycleTime}');
+      print('FINISH LATER');
     }
 
     await sink.flush();
@@ -141,7 +143,8 @@ class TeamsModel extends ChangeNotifier {
 
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('exported $downloadPath/scouting.csv'))
+        //SnackBar(content: Text('exported $downloadPath/scouting.csv'))
+        SnackBar(content: Text('FINISH LATER'))
       );
     }
   }
