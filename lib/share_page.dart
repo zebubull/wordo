@@ -27,7 +27,8 @@ Future<void> _receiveTeams(_SharePageState state) async {
   server.listen((socket) {
     socket.listen((List<int> data) async {
       final teamsList = await compute(_parseTeams, String.fromCharCodes(data));
-      state.message('${teamsModel.addTeams(teamsList)} teams received from ${socket.remoteAddress.host}.');
+      final (added, updated) = teamsModel.addTeams(teamsList);
+      state.message('$added teams received, $updated updated from ${socket.remoteAddress.host}.');
     });
   });
 

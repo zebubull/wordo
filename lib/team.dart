@@ -51,6 +51,60 @@ extension PickupFriendly on Pickup {
   }
 }
 
+class MatchAverage {
+  double ampAuto = 0;
+  double speakerAuto = 0;
+  double leaves = 0.0;
+
+  double ampTele = 0;
+  double speakerTele = 0;
+
+  double hangs = 0;
+  double trap = 0;
+  double harmony = 0;
+
+  double offenseScore = 5.0;
+  double defenseScore = 5.0;
+  double overallScore = 5.0;
+  double cycleTime = 5.0;
+
+  MatchAverage.fromMatches(List<Match> matches) {
+    for (var match in matches) {
+        ampAuto += match.ampAuto;
+        speakerAuto += match.speakerAuto;
+        leaves += match.leaves ? 1 : 0;
+
+        ampTele += match.ampTele;
+        speakerTele += match.speakerTele;
+
+        hangs += match.hangs ? 1 : 0;
+        trap += match.trap ? 1 : 0;
+        harmony += match.harmony ? 1 : 0;
+
+        offenseScore += match.offenseScore;
+        defenseScore += match.defenseScore;
+        overallScore += match.overallScore;
+        cycleTime += match.cycleTime;
+    }
+
+    ampAuto /= matches.length;
+    speakerAuto /= matches.length;
+    leaves /= matches.length;
+
+    ampTele /= matches.length;
+    speakerTele /= matches.length;
+
+    hangs /= matches.length;
+    trap /= matches.length;
+    harmony /= matches.length;
+
+    offenseScore /= matches.length;
+    defenseScore /= matches.length;
+    overallScore /= matches.length;
+    cycleTime /= matches.length;
+  }
+}
+
 class Match {
   final int number;
   int ampAuto = 0;

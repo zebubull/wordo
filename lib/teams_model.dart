@@ -60,17 +60,28 @@ class TeamsModel extends ChangeNotifier {
     markDirty();
   }
 
-  int addTeams(List<Team> teams) {
-    int counter = 0;
+  (int, int) addTeams(List<Team> teams) {
+    int newTeams = 0;
+    int updatedTeams = 0;
     for (var team in teams) {
       if (_teams.where((t) => t.id == team.id).isEmpty) {
         _teams.add(team);
-        counter++;
+        newTeams++;
+      } else {
+        var curTeam = _teams.where((t) => t.id == team.id).first;
+        var wasUpdated = false;
+        for (var match in team.matches) {
+          if (curTeam.matches.where((m) => m.number == match.number).isEmpty) {
+            curTeam.matches.add(match);
+            wasUpdated = true;
+          }
+        }
+        updatedTeams += wasUpdated ? 1 : 0;
       }
     }
 
     markDirty();
-    return counter;
+    return (newTeams, updatedTeams);
   }
 
   void deleteTeam(int id) {
@@ -130,12 +141,12 @@ class TeamsModel extends ChangeNotifier {
 
     var sink = dataFile.openWrite();
 
-    sink.writeln('ID,NAME,WGHT,UNDER,DRIVE,SIZE,AMP_A,SPK_A,LEAVE,AMP_T,SPK_T,PICKUP,HANG,TRAP,HMNY,OFF,DEF,OVR,CYCLE');
+    sink.writeln('ID,NAME,WGHT,UNDER,DRIVE,SIZE,AMP_A,SPK_A,LEAVE,AMP_T,SPK_T,HANG,TRAP,HMNY,OFF,DEF,OVR,CYCLE');
+    
 
-    // TODO: Finish this later
     for (var team in _teams) {
-      // sink.writeln('${team.id},"${team.name}",${team.weight},${team.underStage},${team.drivetrain.toFriendly().toUpperCase()},${team.width}x${team.height}x${team.length},${team.ampAuto},${team.speakerAuto},${team.leaves},${team.ampTele},${team.speakerTele},${team.pickup.toFriendly().toUpperCase()},${team.hangs},${team.trap},${team.harmony},${team.offenseScore},${team.defenseScore},${team.overallScore},${team.cycleTime}');
-      print('FINISH LATER');
+      var avg = MatchAverage.fromMatches(team.matches);
+      sink.writeln('${team.id},"${team.name}",${team.weight},${team.underStage},${team.drivetrain.toFriendly().toUpperCase()},${team.width}x${team.height}x${team.length},${avg.ampAuto},${avg.speakerAuto},${avg.leaves},${avg.ampTele},${avg.speakerTele},${avg.hangs},${avg.trap},${avg.harmony},${avg.offenseScore},${avg.defenseScore},${avg.overallScore},${avg.cycleTime}');
     }
 
     await sink.flush();
@@ -143,8 +154,7 @@ class TeamsModel extends ChangeNotifier {
 
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        //SnackBar(content: Text('exported $downloadPath/scouting.csv'))
-        SnackBar(content: Text('FINISH LATER'))
+        SnackBar(content: Text('exported $downloadPath/scouting.csv'))
       );
     }
   }

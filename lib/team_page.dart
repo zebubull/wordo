@@ -1,4 +1,3 @@
-import 'package:biden_blast/big_card.dart';
 import 'package:biden_blast/team.dart';
 import 'package:biden_blast/teams_model.dart';
 import 'package:flutter/material.dart';
