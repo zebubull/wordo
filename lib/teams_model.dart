@@ -100,12 +100,16 @@ class TeamsModel extends ChangeNotifier {
   Future<void> save(BuildContext? context) async {
     if (_saved) return;
     final localPath = (await getApplicationDocumentsDirectory()).path;
-    final dataFile = await File('$localPath/.scouting/saved.json').create(recursive: true);
+    return saveTo(context, '$localPath/.scouting/saved.json');
+  }
+
+  Future<void> saveTo(BuildContext? context, String path) async {
+    final dataFile = await File(path).create(recursive: true);
     await dataFile.writeAsString(jsonEncode(teams.map((t) => t.toJson()).toList()));
 
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Saved $localPath/.scouting/saved.json'))
+        SnackBar(content: Text('Saved $path'))
       );
     }
 
@@ -123,6 +127,8 @@ class TeamsModel extends ChangeNotifier {
       }
       return;
     }
+
+    await saveTo(context, '$downloadPath/scouting.json');
 
     var gotFile = true;
     final dataFile = await File('$downloadPath/scouting.csv').create(recursive: true).onError((error, stackTrace) {

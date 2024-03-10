@@ -17,9 +17,9 @@ class _TeamPageState extends State<TeamPage> with SingleTickerProviderStateMixin
 
   late TabController _tabController;
   static const List<Tab> _tabs = [
-    Tab( text: "PITS"),
-    Tab( text: "LATEST MATCH"),
-    Tab( text: "OLD MATCHES"),
+    Tab( text: "Pits"),
+    Tab( text: "Latest"),
+    Tab( text: "Old"),
   ];
 
   @override
@@ -362,7 +362,7 @@ class _TeamPageState extends State<TeamPage> with SingleTickerProviderStateMixin
         DropdownMenu(
           hintText: 'Pickup Zones',
           initialSelection: Pickup.defenseBot,
-          onSelected: (p) => _update(() { match.pickup = p ?? Pickup.defenseBot; }),
+          onSelected: (p) => _update(() { match.pickup = p ?? match.pickup; }),
           dropdownMenuEntries: [
             for (var zone in Pickup.values)
               DropdownMenuEntry(
