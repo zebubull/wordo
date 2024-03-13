@@ -52,6 +52,8 @@ extension PickupFriendly on Pickup {
 }
 
 class MatchAverage {
+  int id;
+  String name;
   double ampAuto = 0;
   double speakerAuto = 0;
   double leaves = 0.0;
@@ -68,7 +70,11 @@ class MatchAverage {
   double overallScore = 5.0;
   double cycleTime = 5.0;
 
-  MatchAverage.fromMatches(List<Match> matches) {
+  double overallWeight = 5.0;
+  double teleWeight = 5.0;
+  double autonWeight = 5.0;
+
+  MatchAverage.fromMatches(this.id, this.name, List<Match> matches) {
     for (var match in matches) {
         ampAuto += match.ampAuto;
         speakerAuto += match.speakerAuto;
@@ -102,6 +108,10 @@ class MatchAverage {
     defenseScore /= matches.length;
     overallScore /= matches.length;
     cycleTime /= matches.length;
+
+    overallWeight = ampAuto + ampTele + speakerAuto + speakerTele + hangs;
+    teleWeight = ampTele + speakerTele + hangs;
+    autonWeight = ampAuto + speakerAuto;
   }
 }
 

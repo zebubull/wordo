@@ -131,7 +131,11 @@ class TeamsModel extends ChangeNotifier {
     await saveTo(context, '$downloadPath/scouting.json');
 
     var gotFile = true;
-    final dataFile = await File('$downloadPath/scouting.csv').create(recursive: true).onError((error, stackTrace) {
+    var error;
+    var stackTrace;
+    final dataFile = await File('$downloadPath/scouting.csv').create(recursive: true).onError((e, s) {
+      error = e;
+      stackTrace = s;
       gotFile = false;
       return File('');
     });
@@ -139,7 +143,7 @@ class TeamsModel extends ChangeNotifier {
     if (!gotFile) {
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ERROR: Could not open export file.'))
+          SnackBar(content: Text(error.toString()))
         );
       }
       return;
@@ -147,12 +151,13 @@ class TeamsModel extends ChangeNotifier {
 
     var sink = dataFile.openWrite();
 
-    sink.writeln('ID,NAME,WGHT,UNDER,DRIVE,SIZE,AMP_A,SPK_A,LEAVE,AMP_T,SPK_T,HANG,TRAP,HMNY,OFF,DEF,OVR,CYCLE');
-    
+    sink.writeln("Id,Name,Overall,Auto,Amp,Speaker,Tele,Amp,Speaker");
 
-    for (var team in _teams) {
-      var avg = MatchAverage.fromMatches(team.matches);
-      sink.writeln('${team.id},"${team.name}",${team.weight},${team.underStage},${team.drivetrain.toFriendly().toUpperCase()},${team.width}x${team.height}x${team.length},${avg.ampAuto},${avg.speakerAuto},${avg.leaves},${avg.ampTele},${avg.speakerTele},${avg.hangs},${avg.trap},${avg.harmony},${avg.offenseScore},${avg.defenseScore},${avg.overallScore},${avg.cycleTime}');
+    var averages = _teams.map((t) => MatchAverage.fromMatches(t.id, t.name, t.matches)).where((m) => !m.overallScore.isNaN && m.overallScore.isFinite).toList();
+    averages.sort((a, b) => b.overallWeight.compareTo(a.overallWeight));
+
+    for (var team in averages) {
+      sink.writeln('${team.id},${team.name},${team.overallWeight},${team.autonWeight},${team.ampAuto},${team.speakerAuto},${team.teleWeight},${team.ampTele},${team.speakerTele}');
     }
 
     await sink.flush();
