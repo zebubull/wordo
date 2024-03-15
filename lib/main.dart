@@ -1,28 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'views/home.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky).then((_) => runApp(MyApp()));
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky)
+      .then((_) => runApp(App()));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-  
+class App extends StatefulWidget {
+  const App({super.key});
+
   @override
-  MyAppState createState() => MyAppState();
+  AppState createState() => AppState();
 }
 
-class MyAppState extends State<MyApp> {
+class AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '8873 Scouting',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
+        colorSchemeSeed: Colors.lightBlue,
       ),
-      home: Scaffold(),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.lightBlue,
+      ),
+      themeMode: ThemeMode.system,
+      home: HomeView(),
     );
   }
 }
