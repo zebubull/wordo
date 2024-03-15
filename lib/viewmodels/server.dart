@@ -1,23 +1,39 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:scouting_app/models/server/client.dart';
 
 class ServerViewModel extends ChangeNotifier {
   ServerSocket? _serverSocket;
+  List<Client?> _clients = [];
 
-  void initializeServer() async {
-    if (_serverSocket != null) {
-      await _serverSocket!.close();
+  bool get running => _serverSocket != null;
+  int get port => _serverSocket?.port ?? 0;
+  int get numClients => _clients.map((e) => e == null ? 0 : 1).reduce((a, b) => a + b);
+
+  static const maxConnections = 10;
+
+  Future<void> start(InternetAddress host, int port) async {
+    _clients.length = maxConnections;
+    _serverSocket = await ServerSocket.bind(host, port);
+
+    _serverSocket!.listen(_addClient);
+  }
+
+  void _addClient(Socket sock) {
+    for (var i = 0; i < maxConnections; ++i) {
+      if (_clients[i] == null) {
+        _clients[i] = Client(id: i, socket: sock, server: this);
+        notifyListeners();
+        return;
+      }
     }
 
-    _serverSocket = await ServerSocket.bind('0.0.0.0', 42069);
+    print('[Error] No space for client to connect');
+  }
 
-    _serverSocket!.listen((socket) {
-      socket.add(Uint8List.fromList([0,0,0,0,69]));
-      socket.flush();
-
-      socket.listen((List<int> data) async {});
-    });
+  void disconnect(Client client) {
+    _clients[client.id] = null;
+    notifyListeners();
   }
 }
