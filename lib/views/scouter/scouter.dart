@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:scouting_app/views/scouter/connect.dart';
+import 'package:scouting_app/views/scouter/scout.dart';
 
 class ScouterView extends StatefulWidget {
   @override
@@ -25,6 +27,7 @@ class _ScouterViewState extends State<ScouterView> {
       bottomNavigationBar: makeNavigationBar(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
+        child: makeCurrentView(),
       ),
     );
   }
@@ -37,10 +40,22 @@ class _ScouterViewState extends State<ScouterView> {
           const VerticalDivider(),
           Padding(
             padding: const EdgeInsets.all(8.0),
+            child: makeCurrentView(),
           ),
         ],
       ),
     );
+  }
+
+  Widget makeCurrentView() {
+    switch (currentPageIndex) {
+      case 0:
+        return ScoutView();
+      case 1:
+        return ConnectView();
+      default:
+        throw UnimplementedError();
+    }
   }
 
   Widget makeNavigationRail(BoxConstraints constraints) {
