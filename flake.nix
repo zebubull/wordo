@@ -26,6 +26,7 @@
             android.platform-tools
             # runtime dep
             xdg-user-dirs
+            commitizen
           ];
 
           # shellHook = ''
