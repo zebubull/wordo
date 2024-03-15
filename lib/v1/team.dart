@@ -76,21 +76,21 @@ class MatchAverage {
 
   MatchAverage.fromMatches(this.id, this.name, List<Match> matches) {
     for (var match in matches) {
-        ampAuto += match.ampAuto;
-        speakerAuto += match.speakerAuto;
-        leaves += match.leaves ? 1 : 0;
+      ampAuto += match.ampAuto;
+      speakerAuto += match.speakerAuto;
+      leaves += match.leaves ? 1 : 0;
 
-        ampTele += match.ampTele;
-        speakerTele += match.speakerTele;
+      ampTele += match.ampTele;
+      speakerTele += match.speakerTele;
 
-        hangs += match.hangs ? 1 : 0;
-        trap += match.trap ? 1 : 0;
-        harmony += match.harmony ? 1 : 0;
+      hangs += match.hangs ? 1 : 0;
+      trap += match.trap ? 1 : 0;
+      harmony += match.harmony ? 1 : 0;
 
-        offenseScore += match.offenseScore;
-        defenseScore += match.defenseScore;
-        overallScore += match.overallScore;
-        cycleTime += match.cycleTime;
+      offenseScore += match.offenseScore;
+      defenseScore += match.defenseScore;
+      overallScore += match.overallScore;
+      cycleTime += match.cycleTime;
     }
 
     ampAuto /= matches.length;
@@ -136,23 +136,22 @@ class Match {
 
   Match({required this.number});
 
-  Map<String, dynamic> toJson() =>
-  {
-    'amp_auto': ampAuto,
-    'speaker_auto': speakerAuto,
-    'amp_tele': ampTele,
-    'speaker_tele': speakerTele,
-    'offense': offenseScore,
-    'defense': defenseScore,
-    'overall': overallScore,
-    'leaves': leaves,
-    'hangs': hangs,
-    'trap': trap,
-    'harmony': harmony,
-    'pickup': pickup.toFriendly(),
-    'cycle_time': cycleTime,
-    'number': number,
-  };
+  Map<String, dynamic> toJson() => {
+        'amp_auto': ampAuto,
+        'speaker_auto': speakerAuto,
+        'amp_tele': ampTele,
+        'speaker_tele': speakerTele,
+        'offense': offenseScore,
+        'defense': defenseScore,
+        'overall': overallScore,
+        'leaves': leaves,
+        'hangs': hangs,
+        'trap': trap,
+        'harmony': harmony,
+        'pickup': pickup.toFriendly(),
+        'cycle_time': cycleTime,
+        'number': number,
+      };
 
   Match.fromJson(Map<String, dynamic> json) : number = json['number'] {
     ampAuto = json['amp_auto'];
@@ -186,18 +185,17 @@ class Team {
 
   Team({required this.id, required this.name});
 
-  Map<String, dynamic> toJson() =>
-  {
-    'id': id,
-    'name': name,
-    'weight': weight,
-    'under_stage': underStage,
-    'drivetrain': drivetrain.toFriendly(),
-    'width': width,
-    'length': length,
-    'height': height,
-    'matches': matches.map((m) => m.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'weight': weight,
+        'under_stage': underStage,
+        'drivetrain': drivetrain.toFriendly(),
+        'width': width,
+        'length': length,
+        'height': height,
+        'matches': matches.map((m) => m.toJson()).toList(),
+      };
 
   Team.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -208,6 +206,8 @@ class Team {
     width = json['width'];
     length = json['length'];
     height = json['height'];
-    matches = (json['matches'] as List<dynamic>).map((j) => Match.fromJson(j as Map<String, dynamic>)).toList();
+    matches = (json['matches'] as List<dynamic>)
+        .map((j) => Match.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 }
