@@ -1,8 +1,8 @@
-import 'package:biden_blast/new_team_page.dart';
-import 'package:biden_blast/share_page.dart';
-import 'package:biden_blast/team_page.dart';
-import 'package:biden_blast/team_select_page.dart';
-import 'package:biden_blast/teams_model.dart';
+import 'package:scouting_app/new_team_page.dart';
+import 'package:scouting_app/share_page.dart';
+import 'package:scouting_app/team_page.dart';
+import 'package:scouting_app/team_select_page.dart';
+import 'package:scouting_app/teams_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

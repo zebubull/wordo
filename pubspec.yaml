@@ -1,6 +1,6 @@
 
-name: biden_blast
-description: A new Flutter project.
+name: scouting_app
+description: Team 8873's scouting app for FRC 2024 Crescendo.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 

@@ -1,5 +1,5 @@
-import 'package:biden_blast/team.dart';
-import 'package:biden_blast/teams_model.dart';
+import 'package:scouting_app/team.dart';
+import 'package:scouting_app/teams_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

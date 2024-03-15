@@ -1,9 +1,0 @@
-- [ ] cycle time  
-- [x] scoring  
-- [x] weight  
-- [x] under stage  
-- [x] drivetrain  
-- [x] size  
-- [ ] fun facts  
-- [x] climb  
-- [ ] pick up areas  
