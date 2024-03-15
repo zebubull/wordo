@@ -13,15 +13,58 @@ class _ScouterViewState extends State<ScouterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(pageNames[currentPageIndex]),
-        automaticallyImplyLeading: false,
-      ),
-      bottomNavigationBar: makeNavigationBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-      ),
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth <= 650) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(pageNames[currentPageIndex]),
+            automaticallyImplyLeading: false,
+          ),
+          bottomNavigationBar: makeNavigationBar(),
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+          ),
+        );
+      } else {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(pageNames[currentPageIndex]),
+            automaticallyImplyLeading: false,
+          ),
+          body: Row(
+            children: [
+              makeNavigationRail(constraints),
+              const VerticalDivider(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
+
+  Widget makeNavigationRail(BoxConstraints constraints) {
+    return NavigationRail(
+      extended: constraints.maxWidth >= 1200,
+      onDestinationSelected: updateSelectedPage,
+      selectedIndex: currentPageIndex,
+      labelType:
+          constraints.maxWidth >= 1200 ? null : NavigationRailLabelType.all,
+      destinations: [
+        NavigationRailDestination(
+            selectedIcon: const Icon(Icons.edit),
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Scout')),
+        NavigationRailDestination(
+            selectedIcon: const Icon(Icons.cast_connected_rounded),
+            icon: const Icon(Icons.cast_connected_outlined),
+            label: const Text('Connect')),
+        NavigationRailDestination(
+            icon: const Icon(Icons.logout_rounded),
+            label: const Text('Logout')),
+      ],
     );
   }
 
