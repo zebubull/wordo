@@ -38,9 +38,11 @@ class _ScouterViewState extends State<ScouterView> {
         children: [
           makeNavigationRail(constraints),
           const VerticalDivider(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: makeCurrentView(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: makeCurrentView(),
+            ),
           ),
         ],
       ),
