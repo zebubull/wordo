@@ -22,10 +22,6 @@ class _ScouterViewState extends State<ScouterView> {
 
   Scaffold makeMobileLayout() {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(pageNames[currentPageIndex]),
-        automaticallyImplyLeading: false,
-      ),
       bottomNavigationBar: makeNavigationBar(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -35,10 +31,6 @@ class _ScouterViewState extends State<ScouterView> {
 
   Scaffold makeDesktopLayout(BoxConstraints constraints) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(pageNames[currentPageIndex]),
-        automaticallyImplyLeading: false,
-      ),
       body: Row(
         children: [
           makeNavigationRail(constraints),
