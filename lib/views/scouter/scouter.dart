@@ -14,35 +14,41 @@ class _ScouterViewState extends State<ScouterView> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth <= 650) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(pageNames[currentPageIndex]),
-            automaticallyImplyLeading: false,
-          ),
-          bottomNavigationBar: makeNavigationBar(),
-          body: Padding(
+      return constraints.maxWidth <= 650
+          ? makeMobileLayout()
+          : makeDesktopLayout(constraints);
+    });
+  }
+
+  Scaffold makeMobileLayout() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(pageNames[currentPageIndex]),
+        automaticallyImplyLeading: false,
+      ),
+      bottomNavigationBar: makeNavigationBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+      ),
+    );
+  }
+
+  Scaffold makeDesktopLayout(BoxConstraints constraints) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(pageNames[currentPageIndex]),
+        automaticallyImplyLeading: false,
+      ),
+      body: Row(
+        children: [
+          makeNavigationRail(constraints),
+          const VerticalDivider(),
+          Padding(
             padding: const EdgeInsets.all(8.0),
           ),
-        );
-      } else {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(pageNames[currentPageIndex]),
-            automaticallyImplyLeading: false,
-          ),
-          body: Row(
-            children: [
-              makeNavigationRail(constraints),
-              const VerticalDivider(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-              ),
-            ],
-          ),
-        );
-      }
-    });
+        ],
+      ),
+    );
   }
 
   Widget makeNavigationRail(BoxConstraints constraints) {
