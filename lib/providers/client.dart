@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/client/client.dart';
-import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
 
 class ClientProvider extends ChangeNotifier {
@@ -12,7 +12,7 @@ class ClientProvider extends ChangeNotifier {
   bool get connected => _client != null;
   Client? get client => _client;
 
-  List<Team> assignedTeams = <Team>[];
+  List<Assignment> assignedMatches = <Assignment>[];
 
   void updateName(String name) {
     if (client == null) return;
@@ -33,9 +33,8 @@ class ClientProvider extends ChangeNotifier {
         Packet.send(PacketType.assignmentRequest).send(client!.socket);
         client!.socket.flush();
       case PacketType.assignment:
-        var number = packet.readU32();
-        var name = packet.readString();
-        assignedTeams.add(Team(number: number, name: name));
+        var assignment = packet.readAssignment();
+        assignedMatches.add(assignment);
         notifyListeners();
       default:
         break;

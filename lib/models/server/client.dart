@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:scouting_app/models/assignment.dart';
+import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/providers/server.dart';
 
@@ -19,8 +21,8 @@ class Client {
         server.onReceiveData();
       case PacketType.assignmentRequest:
         var assignment = Packet.send(PacketType.assignment);
-        assignment.addU32(8873);
-        assignment.addString("Test Team");
+        assignment.addAssignment(Assignment(
+            team: Team(number: 8873, name: "Test Team"), matchNumber: 7));
         assignment.send(socket);
 
         socket.flush();

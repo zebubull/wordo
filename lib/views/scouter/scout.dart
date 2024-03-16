@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/providers/client.dart';
-import 'package:scouting_app/views/scouter/team.dart';
+import 'package:scouting_app/views/scouter/match.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 
 class ScoutView extends StatelessWidget {
@@ -14,14 +14,16 @@ class ScoutView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-              if (client.assignedTeams.isEmpty) const Text('No teams assigned'),
-              for (var team in client.assignedTeams)
+              if (client.assignedMatches.isEmpty)
+                const Text('No matches assigned'),
+              for (var match in client.assignedMatches)
                 ElevatedButton(
-                    child: Text('${team.name} (${team.number})'),
+                    child: Text(
+                        '${match.team.name} (${match.team.number}): ${match.matchNumber}'),
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => TeamView(team: team)))),
+                            builder: (context) => MatchView(match)))),
             ]));
       },
     );
