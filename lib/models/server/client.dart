@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:scouting_app/models/assignment.dart';
-import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/providers/server.dart';
 
