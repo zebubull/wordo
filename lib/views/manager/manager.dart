@@ -14,8 +14,10 @@ class _ManagerViewState extends State<ManagerView> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ServerViewModel>(context, listen: false)
-        .start(InternetAddress('0.0.0.0'), 42069);
+    var server = Provider.of<ServerViewModel>(context, listen: false);
+    if (!server.running) {
+      server.start(InternetAddress('0.0.0.0'), 42069);
+    }
   }
 
   @override
