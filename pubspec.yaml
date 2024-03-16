@@ -13,9 +13,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  get_it: ^7.6.7
   network_info_plus: ^4.1.0+1
   path_provider: ^2.1.2
   provider: ^6.1.1
+  watch_it: ^1.4.0
 
 dev_dependencies:
   flutter_test:

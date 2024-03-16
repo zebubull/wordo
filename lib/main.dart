@@ -1,18 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/models/server/server.dart';
 import 'package:scouting_app/providers/client.dart';
-import 'package:scouting_app/providers/server.dart';
+import 'package:watch_it/watch_it.dart';
 
 import 'views/home.dart';
 
-void main() {
+void main() async {
+  di.registerLazySingleton<Server>(
+      () => Server(InternetAddress.anyIPv4, 42069));
+
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky)
-      .then((_) => runApp(MultiProvider(providers: [
-            ChangeNotifierProvider(create: (_) => ClientProvider()),
-            ChangeNotifierProvider(create: (_) => ServerProvider()),
-          ], child: App())));
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ClientProvider()),
+  ], child: App()));
 }
 
 class App extends StatefulWidget {

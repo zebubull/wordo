@@ -19,6 +19,7 @@ class ClientProvider extends ChangeNotifier {
 
     client!.name = name;
     var namePacket = Packet.send(PacketType.username);
+    namePacket.addU32(client!.id);
     namePacket.addString(client!.name);
     namePacket.send(client!.socket);
     client!.socket.flush();
@@ -30,7 +31,9 @@ class ClientProvider extends ChangeNotifier {
       case PacketType.welcome:
         _client!.id = packet.readU32();
         notifyListeners();
-        Packet.send(PacketType.assignmentRequest).send(client!.socket);
+        var req = Packet.send(PacketType.assignmentRequest);
+        req.addU32(client!.id);
+        req.send(client!.socket);
         client!.socket.flush();
       case PacketType.assignment:
         var count = packet.readU32();
