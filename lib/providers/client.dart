@@ -33,8 +33,11 @@ class ClientProvider extends ChangeNotifier {
         Packet.send(PacketType.assignmentRequest).send(client!.socket);
         client!.socket.flush();
       case PacketType.assignment:
-        var assignment = packet.readAssignment();
-        assignedMatches.add(assignment);
+        var count = packet.readU32();
+        assignedMatches.clear();
+        for (var i = 0; i < count; ++i) {
+          assignedMatches.add(packet.readAssignment());
+        }
         notifyListeners();
       default:
         break;

@@ -13,22 +13,30 @@ class Client {
 
   String username = "scouter";
 
+  List<Assignment> assignments;
+
   void _onRecieveData(Uint8List bytes) {
     var packet = Packet.receive(bytes);
     switch (packet.type) {
       case PacketType.username:
         username = packet.readString();
-        server.onReceiveData();
+        server.markDirty();
       case PacketType.assignmentRequest:
-        var assignment = Packet.send(PacketType.assignment);
-        assignment.addAssignment(Assignment(
-            team: Team(number: 8873, name: "Test Team"), matchNumber: 7));
-        assignment.send(socket);
-
-        socket.flush();
+        _sendAssignments();
       default:
         break;
     }
+  }
+
+  void _sendAssignments() {
+    var assignment = Packet.send(PacketType.assignment);
+    assignment.addU32(assignments.length);
+    for (var match in assignments) {
+      assignment.addAssignment(match);
+    }
+
+    assignment.send(socket);
+    socket.flush();
   }
 
   void _closeClient() {
@@ -41,7 +49,20 @@ class Client {
     _closeClient();
   }
 
-  Client({required this.id, required this.socket, required this.server}) {
+  void assign(Assignment match) {
+    assignments.add(match);
+    server.markDirty();
+    _sendAssignments();
+  }
+
+  void unassign(Assignment match) {
+    assignments.remove(match);
+    server.markDirty();
+    _sendAssignments();
+  }
+
+  Client({required this.id, required this.socket, required this.server})
+      : assignments = [] {
     var idPacket = Packet.send(PacketType.welcome);
     idPacket.addU32(id);
     idPacket.send(socket);

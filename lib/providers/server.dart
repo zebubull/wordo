@@ -40,7 +40,7 @@ class ServerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onReceiveData() {
+  void markDirty() {
     notifyListeners();
   }
 }

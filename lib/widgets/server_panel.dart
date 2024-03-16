@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/providers/server.dart';
+import 'package:scouting_app/views/manager/client.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 
 class ServerPanel extends StatelessWidget {
@@ -33,8 +34,11 @@ class ServerPanel extends StatelessWidget {
             Text('Port: ${server.port}'),
             for (var client in server.clients)
               if (client != null)
-                Text(
-                    '${client.username}@${client.socket.remoteAddress.address} (${client.id})')
+                ElevatedButton(
+                    child: Text(
+                        '${client.username}@${client.socket.remoteAddress.address} (${client.id})'),
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => ClientView(client)))),
           ]));
     });
   }
