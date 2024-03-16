@@ -8,27 +8,30 @@ class ConnectionPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ClientProvider>(builder: (context, network, child) {
       return CenteredCard(
-          child: Column(children: [
-        if (network.connected)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.circle),
-              Text(' Connected to server'),
-            ],
-          )
-        else
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.circle_outlined),
-              Text(' Disconnected'),
-            ],
-          ),
-        Text('Id: ${network.client?.id ?? -1}'),
-      ]));
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+            if (network.connected)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle),
+                  Text(' Connected to server'),
+                ],
+              )
+            else
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle_outlined),
+                  Text(' Disconnected'),
+                ],
+              ),
+            Text('Id: ${network.client?.id ?? -1}'),
+          ]));
     });
   }
 }

@@ -8,31 +8,34 @@ class ServerPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ServerProvider>(builder: (context, server, child) {
       return CenteredCard(
-          child: Column(children: [
-        if (server.running)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.circle),
-              Text(' Server running'),
-            ],
-          )
-        else
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.circle_outlined),
-              Text(' Server stopped'),
-            ],
-          ),
-        Text('Port: ${server.port}'),
-        for (var client in server.clients)
-          if (client != null)
-            Text(
-                '${client.username}@${client.socket.remoteAddress.address} (${client.id})')
-      ]));
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+            if (server.running)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle),
+                  Text(' Server running'),
+                ],
+              )
+            else
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle_outlined),
+                  Text(' Server stopped'),
+                ],
+              ),
+            Text('Port: ${server.port}'),
+            for (var client in server.clients)
+              if (client != null)
+                Text(
+                    '${client.username}@${client.socket.remoteAddress.address} (${client.id})')
+          ]));
     });
   }
 }
