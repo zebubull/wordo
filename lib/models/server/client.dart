@@ -17,6 +17,13 @@ class Client {
       case PacketType.username:
         username = packet.readString();
         server.onReceiveData();
+      case PacketType.assignmentRequest:
+        var assignment = Packet.send(PacketType.assignment);
+        assignment.addU32(8873);
+        assignment.addString("Test Team");
+        assignment.send(socket);
+
+        socket.flush();
       default:
         break;
     }
@@ -35,7 +42,7 @@ class Client {
   Client({required this.id, required this.socket, required this.server}) {
     var idPacket = Packet.send(PacketType.welcome);
     idPacket.addU32(id);
-    socket.add(idPacket.bytes);
+    idPacket.send(socket);
     socket.flush();
 
     socket.listen(_onRecieveData, onError: _onError, onDone: _closeClient);

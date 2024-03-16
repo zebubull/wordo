@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/client/client.dart';
+import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
-import 'package:scouting_app/v1/team.dart';
 
 class ClientProvider extends ChangeNotifier {
   Client? _client;
@@ -20,8 +20,7 @@ class ClientProvider extends ChangeNotifier {
     client!.name = name;
     var namePacket = Packet.send(PacketType.username);
     namePacket.addString(client!.name);
-
-    client!.socket.add(namePacket.bytes);
+    namePacket.send(client!.socket);
     client!.socket.flush();
   }
 
@@ -30,6 +29,13 @@ class ClientProvider extends ChangeNotifier {
     switch (packet.type) {
       case PacketType.welcome:
         _client!.id = packet.readU32();
+        notifyListeners();
+        Packet.send(PacketType.assignmentRequest).send(client!.socket);
+        client!.socket.flush();
+      case PacketType.assignment:
+        var number = packet.readU32();
+        var name = packet.readString();
+        assignedTeams.add(Team(number: number, name: name));
         notifyListeners();
       default:
         break;

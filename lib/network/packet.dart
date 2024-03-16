@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 enum PacketType {
   welcome,
   username,
+  assignment,
+  assignmentRequest,
 }
 
 class Packet {
@@ -20,6 +23,10 @@ class Packet {
 
   Packet.receive(Uint8List bytes) : _receive = bytes {
     type = PacketType.values[readU32()];
+  }
+
+  void send(Socket sock) {
+    sock.add(bytes);
   }
 
   void addU32(int data) {
