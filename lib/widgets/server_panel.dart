@@ -36,7 +36,10 @@ class ServerPanel extends StatelessWidget {
                 ],
               ),
             Text('Port: ${server.port}'),
-            Text('Active connections: ${server.numClients}'),
+            for (var client in server.clients)
+              if (client != null)
+                Text(
+                    '${client.username}@${client.socket.remoteAddress.address} (${client.id})')
           ]),
         ),
       );

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/viewmodels/server.dart';
 
 class Client {
@@ -8,9 +9,17 @@ class Client {
   Socket socket;
   ServerViewModel server;
 
-  void _onRecieveData(List<int> data) {
-    // TODO: Implement method
-    print('[Msg] ($id) ${String.fromCharCodes(data)}');
+  String username = "scouter";
+
+  void _onRecieveData(Uint8List bytes) {
+    var packet = Packet.receive(bytes);
+    switch (packet.type) {
+      case PacketType.username:
+        username = packet.readString();
+        server.onReceiveData();
+      default:
+        break;
+    }
   }
 
   void _closeClient() {
@@ -24,8 +33,9 @@ class Client {
   }
 
   Client({required this.id, required this.socket, required this.server}) {
-    var idPacket = Uint8List.fromList([0, 0, 0, 0, id]);
-    socket.add(idPacket);
+    var idPacket = Packet.send(PacketType.welcome);
+    idPacket.addU32(id);
+    socket.add(idPacket.bytes);
     socket.flush();
 
     socket.listen(_onRecieveData, onError: _onError, onDone: _closeClient);

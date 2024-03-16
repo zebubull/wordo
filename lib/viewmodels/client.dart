@@ -1,37 +1,43 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:scouting_app/models/client/client.dart';
+import 'package:scouting_app/network/packet.dart';
 
 class ClientViewModel extends ChangeNotifier {
-  Socket? _clientSocket;
-  int _clientId = 0;
+  Client? _client;
 
-  bool get connected => _clientSocket != null;
-  int get clientId => _clientId;
+  bool get connected => _client != null;
+  Client? get client => _client;
+
+  void updateName(String name) {
+    if (client == null) return;
+
+    client!.name = name;
+    var namePacket = Packet.send(PacketType.username);
+    namePacket.addString(client!.name);
+
+    client!.socket.add(namePacket.bytes);
+    client!.socket.flush();
+  }
 
   void _onClientReceive(Uint8List bytes) {
-    int packetId = bytes[0];
-    switch (packetId) {
-      case 0:
-        if (bytes.length != 5) {
-          print('[Error] Received bad welcome packet with id: $packetId');
-          _closeClient();
-          break;
-        }
-        _clientId = ByteData.sublistView(bytes, 1).getUint32(0);
+    var packet = Packet.receive(bytes);
+    switch (packet.type) {
+      case PacketType.welcome:
+        _client!.id = packet.readU32();
         notifyListeners();
       default:
-        print('[Error] Received unknown packet with id: $packetId');
         break;
     }
   }
 
   void _closeClient() async {
-    if (_clientSocket == null) return;
-    await _clientSocket!.close();
-    _clientSocket = null;
-    _clientId = 0;
+    if (_client == null) return;
+    await _client!.socket.close();
+    _client = null;
     notifyListeners();
   }
 
@@ -42,10 +48,11 @@ class ClientViewModel extends ChangeNotifier {
 
   void connectToServer(InternetAddress host, int port) async {
     try {
-      _clientSocket = await Socket.connect(host, port);
+      var sock = await Socket.connect(host, port);
       print('[Debug] Connected to server');
-      _clientSocket!.listen(_onClientReceive,
+      sock.listen(_onClientReceive,
           onError: _onClientError, onDone: _closeClient);
+      _client = Client(id: -1, socket: sock);
     } catch (err) {
       print('[Error] Failed to connect to server: $err');
     }

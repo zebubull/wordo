@@ -11,6 +11,7 @@ class ServerViewModel extends ChangeNotifier {
   int get port => _serverSocket?.port ?? 0;
   int get numClients =>
       _clients.map((e) => e == null ? 0 : 1).reduce((a, b) => a + b);
+  List<Client?> get clients => _clients;
 
   static const maxConnections = 10;
 
@@ -36,6 +37,10 @@ class ServerViewModel extends ChangeNotifier {
 
   void disconnect(Client client) {
     _clients[client.id] = null;
+    notifyListeners();
+  }
+
+  void onReceiveData() {
     notifyListeners();
   }
 }

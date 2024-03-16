@@ -35,7 +35,7 @@ class ConnectionPanel extends StatelessWidget {
                   Text(' Disconnected'),
                 ],
               ),
-            Text('Id: ${network.clientId}'),
+            Text('Id: ${network.client?.id ?? -1}'),
           ]),
         ),
       );

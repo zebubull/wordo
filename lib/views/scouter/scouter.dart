@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scouting_app/views/scouter/connect.dart';
 import 'package:scouting_app/views/scouter/scout.dart';
+import 'package:scouting_app/views/scouter/settings.dart';
 
 class ScouterView extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class ScouterView extends StatefulWidget {
 class _ScouterViewState extends State<ScouterView> {
   int currentPageIndex = 0;
 
-  final List<String> pageNames = <String>['Scout', 'Connect'];
+  final List<String> pageNames = <String>['Scout', 'Settings', 'Connect'];
   int get logoutIndex => pageNames.length;
 
   @override
@@ -55,6 +56,8 @@ class _ScouterViewState extends State<ScouterView> {
         return ScoutView();
       case 1:
         return ConnectView();
+      case 2:
+        return SettingsView();
       default:
         throw UnimplementedError();
     }
@@ -77,6 +80,11 @@ class _ScouterViewState extends State<ScouterView> {
             icon: const Icon(Icons.cast_connected_outlined),
             label: const Text('Connect')),
         NavigationRailDestination(
+          selectedIcon: const Icon(Icons.settings),
+          icon: const Icon(Icons.settings_outlined),
+          label: const Text('Settings'),
+        ),
+        NavigationRailDestination(
             icon: const Icon(Icons.logout_rounded),
             label: const Text('Logout')),
       ],
@@ -97,6 +105,11 @@ class _ScouterViewState extends State<ScouterView> {
           selectedIcon: const Icon(Icons.cast_connected_rounded),
           icon: const Icon(Icons.cast_connected_outlined),
           label: 'Connect',
+        ),
+        NavigationDestination(
+          selectedIcon: const Icon(Icons.settings),
+          icon: const Icon(Icons.settings_outlined),
+          label: 'Settings',
         ),
         NavigationDestination(
           icon: const Icon(Icons.logout_rounded),
