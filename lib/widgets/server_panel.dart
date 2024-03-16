@@ -7,7 +7,8 @@ class ServerPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ServerProvider>(builder: (context, server, child) {
-      return CenteredCard(children: [
+      return CenteredCard(
+          child: Column(children: [
         if (server.running)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -31,7 +32,7 @@ class ServerPanel extends StatelessWidget {
           if (client != null)
             Text(
                 '${client.username}@${client.socket.remoteAddress.address} (${client.id})')
-      ]);
+      ]));
     });
   }
 }

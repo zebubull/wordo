@@ -7,7 +7,8 @@ class ConnectionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ClientProvider>(builder: (context, network, child) {
-      return CenteredCard(children: [
+      return CenteredCard(
+          child: Column(children: [
         if (network.connected)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -27,7 +28,7 @@ class ConnectionPanel extends StatelessWidget {
             ],
           ),
         Text('Id: ${network.client?.id ?? -1}'),
-      ]);
+      ]));
     });
   }
 }
