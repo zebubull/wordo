@@ -14,7 +14,8 @@ class _ManagerViewState extends State<ManagerView> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ServerViewModel>(context, listen: false).start(InternetAddress('0.0.0.0'), 42069);
+    Provider.of<ServerViewModel>(context, listen: false)
+        .start(InternetAddress('0.0.0.0'), 42069);
   }
 
   @override
@@ -24,9 +25,7 @@ class _ManagerViewState extends State<ManagerView> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            NetworkView()
-          ],
+          children: [NetworkView()],
         ),
       ),
     );

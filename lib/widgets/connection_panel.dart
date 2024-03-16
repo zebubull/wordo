@@ -17,22 +17,24 @@ class ConnectionPanel extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(children: [
-            if (network.connected) Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.circle),
-                Text(' Connected to server'),
-              ],
-            )
-            else Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.circle_outlined),
-                Text(' Disconnected'),
-              ],
-            ),
+            if (network.connected)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle),
+                  Text(' Connected to server'),
+                ],
+              )
+            else
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle_outlined),
+                  Text(' Disconnected'),
+                ],
+              ),
             Text('Id: ${network.clientId}'),
           ]),
         ),
@@ -40,4 +42,3 @@ class ConnectionPanel extends StatelessWidget {
     });
   }
 }
-

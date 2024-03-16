@@ -44,7 +44,8 @@ class ClientViewModel extends ChangeNotifier {
     try {
       _clientSocket = await Socket.connect(host, port);
       print('[Debug] Connected to server');
-      _clientSocket!.listen(_onClientReceive, onError: _onClientError, onDone: _closeClient);
+      _clientSocket!.listen(_onClientReceive,
+          onError: _onClientError, onDone: _closeClient);
     } catch (err) {
       print('[Error] Failed to connect to server: $err');
     }

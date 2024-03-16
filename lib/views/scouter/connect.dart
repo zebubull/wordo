@@ -20,7 +20,8 @@ class _ConnectViewState extends State<ConnectView> {
       final ip = InternetAddress.tryParse(_ip.text)!;
       final port = int.tryParse(_port.text)!;
 
-      Provider.of<ClientViewModel>(context, listen: false).connectToServer(ip, port);
+      Provider.of<ClientViewModel>(context, listen: false)
+          .connectToServer(ip, port);
     } catch (err) {
       print('[DEBUG] Invalid form inputs: $err');
     }
@@ -44,7 +45,8 @@ class _ConnectViewState extends State<ConnectView> {
             SizedBox(
               width: 450,
               child: TextFormField(
-                decoration: const InputDecoration(hintText: 'IP', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    hintText: 'IP', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 controller: _ip,
               ),
@@ -53,7 +55,8 @@ class _ConnectViewState extends State<ConnectView> {
             SizedBox(
               width: 450,
               child: TextFormField(
-                decoration: const InputDecoration(hintText: 'Port', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    hintText: 'Port', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 controller: _port,
               ),

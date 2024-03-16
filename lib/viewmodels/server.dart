@@ -9,7 +9,8 @@ class ServerViewModel extends ChangeNotifier {
 
   bool get running => _serverSocket != null;
   int get port => _serverSocket?.port ?? 0;
-  int get numClients => _clients.map((e) => e == null ? 0 : 1).reduce((a, b) => a + b);
+  int get numClients =>
+      _clients.map((e) => e == null ? 0 : 1).reduce((a, b) => a + b);
 
   static const maxConnections = 10;
 
@@ -18,6 +19,7 @@ class ServerViewModel extends ChangeNotifier {
     _serverSocket = await ServerSocket.bind(host, port);
 
     _serverSocket!.listen(_addClient);
+    notifyListeners();
   }
 
   void _addClient(Socket sock) {

@@ -8,12 +8,11 @@ import 'views/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky).then((_) =>
-      runApp(MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => ClientViewModel()),
-          ChangeNotifierProvider(create: (_) => ServerViewModel()),
-        ], child: App())));
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky)
+      .then((_) => runApp(MultiProvider(providers: [
+            ChangeNotifierProvider(create: (_) => ClientViewModel()),
+            ChangeNotifierProvider(create: (_) => ServerViewModel()),
+          ], child: App())));
 }
 
 class App extends StatefulWidget {

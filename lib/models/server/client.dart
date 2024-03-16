@@ -24,7 +24,7 @@ class Client {
   }
 
   Client({required this.id, required this.socket, required this.server}) {
-    var idPacket = Uint8List.fromList([0,0,0,0,id]);
+    var idPacket = Uint8List.fromList([0, 0, 0, 0, id]);
     socket.add(idPacket);
     socket.flush();
 

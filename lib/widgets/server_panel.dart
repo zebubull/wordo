@@ -17,22 +17,24 @@ class ServerPanel extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(children: [
-            if (server.running) Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.circle),
-                Text(' Server running'),
-              ],
-            )
-            else Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.circle_outlined),
-                Text(' Server stopped'),
-              ],
-            ),
+            if (server.running)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle),
+                  Text(' Server running'),
+                ],
+              )
+            else
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle_outlined),
+                  Text(' Server stopped'),
+                ],
+              ),
             Text('Port: ${server.port}'),
             Text('Active connections: ${server.numClients}'),
           ]),
@@ -41,4 +43,3 @@ class ServerPanel extends StatelessWidget {
     });
   }
 }
-
