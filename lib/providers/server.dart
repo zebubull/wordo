@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/server/client.dart';
 
-class ServerViewModel extends ChangeNotifier {
+class ServerProvider extends ChangeNotifier {
   ServerSocket? _serverSocket;
   List<Client?> _clients = [];
 

@@ -2,12 +2,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:scouting_app/network/packet.dart';
-import 'package:scouting_app/viewmodels/server.dart';
+import 'package:scouting_app/providers/server.dart';
 
 class Client {
   final int id;
   Socket socket;
-  ServerViewModel server;
+  ServerProvider server;
 
   String username = "scouter";
 

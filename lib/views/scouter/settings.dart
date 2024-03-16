@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/viewmodels/client.dart';
+import 'package:scouting_app/providers/client.dart';
 
 class SettingsView extends StatefulWidget {
   @override
@@ -17,7 +17,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   void _saveSettings() {
-    var client = Provider.of<ClientViewModel>(context, listen: false);
+    var client = Provider.of<ClientProvider>(context, listen: false);
     client.updateName(_username.text);
   }
 

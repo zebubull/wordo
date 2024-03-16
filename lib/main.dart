@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/viewmodels/client.dart';
-import 'package:scouting_app/viewmodels/server.dart';
+import 'package:scouting_app/providers/client.dart';
+import 'package:scouting_app/providers/server.dart';
 
 import 'views/home.dart';
 
@@ -10,8 +10,8 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky)
       .then((_) => runApp(MultiProvider(providers: [
-            ChangeNotifierProvider(create: (_) => ClientViewModel()),
-            ChangeNotifierProvider(create: (_) => ServerViewModel()),
+            ChangeNotifierProvider(create: (_) => ClientProvider()),
+            ChangeNotifierProvider(create: (_) => ServerProvider()),
           ], child: App())));
 }
 

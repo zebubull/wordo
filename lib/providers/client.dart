@@ -4,12 +4,15 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/client/client.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/v1/team.dart';
 
-class ClientViewModel extends ChangeNotifier {
+class ClientProvider extends ChangeNotifier {
   Client? _client;
 
   bool get connected => _client != null;
   Client? get client => _client;
+
+  List<Team> assignedTeams = <Team>[];
 
   void updateName(String name) {
     if (client == null) return;

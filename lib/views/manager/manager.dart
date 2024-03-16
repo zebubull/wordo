@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/viewmodels/server.dart';
+import 'package:scouting_app/providers/server.dart';
 import 'package:scouting_app/views/manager/network.dart';
 
 class ManagerView extends StatefulWidget {
@@ -14,7 +14,7 @@ class _ManagerViewState extends State<ManagerView> {
   @override
   void initState() {
     super.initState();
-    var server = Provider.of<ServerViewModel>(context, listen: false);
+    var server = Provider.of<ServerProvider>(context, listen: false);
     if (!server.running) {
       server.start(InternetAddress('0.0.0.0'), 42069);
     }

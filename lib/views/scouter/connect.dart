@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/viewmodels/client.dart';
+import 'package:scouting_app/providers/client.dart';
 import 'package:scouting_app/widgets/connection_panel.dart';
 
 class ConnectView extends StatefulWidget {
@@ -20,7 +20,7 @@ class _ConnectViewState extends State<ConnectView> {
       final ip = InternetAddress.tryParse(_ip.text)!;
       final port = int.tryParse(_port.text)!;
 
-      Provider.of<ClientViewModel>(context, listen: false)
+      Provider.of<ClientProvider>(context, listen: false)
           .connectToServer(ip, port);
     } catch (err) {
       print('[DEBUG] Invalid form inputs: $err');

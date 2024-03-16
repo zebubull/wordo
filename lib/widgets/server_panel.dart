@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/viewmodels/server.dart';
+import 'package:scouting_app/providers/server.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 
 class ServerPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<ServerViewModel>(builder: (context, server, child) {
+    return Consumer<ServerProvider>(builder: (context, server, child) {
       return CenteredCard(children: [
         if (server.running)
           Row(
