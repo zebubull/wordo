@@ -14,7 +14,10 @@ class ClientProvider extends ChangeNotifier {
 
   List<Assignment> assignedMatches = <Assignment>[];
 
+  String _username = "scouter";
+
   void updateName(String name) {
+    _username = name;
     if (client == null) return;
 
     client!.name = name;
@@ -31,8 +34,9 @@ class ClientProvider extends ChangeNotifier {
       case PacketType.welcome:
         _client!.id = packet.readU32();
         notifyListeners();
-        var req = Packet.send(PacketType.assignmentRequest);
+        var req = Packet.send(PacketType.username);
         req.addU32(client!.id);
+        req.addString(client!.name);
         req.send(client!.socket);
         client!.socket.flush();
       case PacketType.assignment:
@@ -66,6 +70,7 @@ class ClientProvider extends ChangeNotifier {
       sock.listen(_onClientReceive,
           onError: _onClientError, onDone: _closeClient);
       _client = Client(id: -1, socket: sock);
+      _client!.name = _username;
     } catch (err) {
       print('[Error] Failed to connect to server: $err');
     }

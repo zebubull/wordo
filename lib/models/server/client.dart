@@ -39,6 +39,12 @@ class Client extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setMatches(List<Assignment> matches) {
+    _matches = matches;
+    _sendAssignments();
+    notifyListeners();
+  }
+
   void _sendAssignments() {
     var packet = Packet.send(PacketType.assignment);
     packet.addU32(_matches.length);

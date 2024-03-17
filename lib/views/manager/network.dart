@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/server/server.dart';
-import 'package:scouting_app/views/manager/client.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -9,7 +8,7 @@ class NetworkView extends WatchingWidget {
   Widget build(BuildContext context) {
     final running = watchPropertyValue((Server s) => s.running);
     final port = watchPropertyValue((Server s) => s.port);
-    final clients = watchPropertyValue((Server s) => s.clients);
+    final numClients = watchPropertyValue((Server s) => s.numClients);
 
     return CenteredCard(
         child: Column(
@@ -34,19 +33,10 @@ class NetworkView extends WatchingWidget {
                 Text(' Server stopped'),
               ],
             ),
+          SizedBox(height: 8.0),
           Text('Port: $port'),
-          for (var client in clients)
-            if (client != null)
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: ElevatedButton(
-                    child: Text(
-                        '${client.sock.remoteAddress.address} (${client.id})'),
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => ClientView(client.id)))),
-              ),
+          SizedBox(height: 8.0),
+          Text('$numClients client(s) connected.'),
         ]));
   }
 }

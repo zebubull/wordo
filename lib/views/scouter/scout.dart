@@ -17,13 +17,16 @@ class ScoutView extends StatelessWidget {
               if (client.assignedMatches.isEmpty)
                 const Text('No matches assigned'),
               for (var match in client.assignedMatches)
-                ElevatedButton(
-                    child: Text(
-                        '${match.team.name} (${match.team.number}): ${match.matchNumber}'),
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MatchView(match)))),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                      child: Text(
+                          '${match.team.name} (${match.team.number}): ${match.matchNumber}'),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MatchView(match)))),
+                ),
             ]));
       },
     );

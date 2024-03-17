@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/models/server/server.dart';
+import 'package:scouting_app/models/server/team_store.dart';
 import 'package:scouting_app/providers/client.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -12,6 +13,7 @@ import 'views/home.dart';
 void main() async {
   di.registerLazySingleton<Server>(
       () => Server(InternetAddress.anyIPv4, 42069));
+  di.registerLazySingleton<TeamStore>(() => TeamStore());
 
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
