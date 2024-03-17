@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/server/server.dart';
-import 'package:scouting_app/views/manager/client.dart';
 import 'package:scouting_app/views/manager/user.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 import 'package:watch_it/watch_it.dart';
