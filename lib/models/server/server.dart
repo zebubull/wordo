@@ -155,6 +155,14 @@ class Server extends ChangeNotifier {
     return user;
   }
 
+  void removeUser(User user) async {
+    _users.remove(user);
+    if (dataPath != null) {
+      await File('${dataPath!.path}/users/${user._username}.dat').delete();
+    }
+    notifyListeners();
+  }
+
   void checkAssignments(User user) {
     var client = _clients
         .where((c) => c != null && c.username == user.username)

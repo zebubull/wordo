@@ -35,21 +35,35 @@ class _UserListViewState extends State<UserListView> {
             for (var user in users)
               Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: ElevatedButton(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(child: Center(child: Text(user.username))),
-                        Icon(clients
-                                .where((c) =>
-                                    c != null && c.username == user.username)
-                                .isNotEmpty
-                            ? Icons.circle
-                            : Icons.circle_outlined),
-                      ],
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                  child: Center(child: Text(user.username))),
+                              Icon(clients
+                                      .where((c) =>
+                                          c != null &&
+                                          c.username == user.username)
+                                      .isNotEmpty
+                                  ? Icons.circle
+                                  : Icons.circle_outlined),
+                            ],
+                          ),
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => UserView(user)))),
                     ),
-                    onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => UserView(user)))),
+                    IconButton(
+                      icon: const Icon(Icons.highlight_remove),
+                      onPressed: () => di.get<Server>().removeUser(user),
+                    )
+                  ],
+                ),
               ),
             Divider(color: theme.colorScheme.onPrimaryContainer),
             ExpansionTile(
