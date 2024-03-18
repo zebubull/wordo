@@ -23,6 +23,13 @@ class ClientProvider extends ChangeNotifier {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
       _username = _prefs!.getString('username') ?? "scouter";
+
+      var port = prefs.getInt('port');
+
+      if (port != null) {
+        var host = InternetAddress(prefs.getString('host')!);
+        connectToServer(host, port);
+      }
     });
   }
 
@@ -82,6 +89,8 @@ class ClientProvider extends ChangeNotifier {
           onError: _onClientError, onDone: _closeClient);
       _client = Client(id: -1, socket: sock);
       _client!.name = _username;
+      _prefs?.setInt('port', port);
+      _prefs?.setString('host', host.address);
     } catch (err) {
       ErrorDialog.show('Client error',
           'Failed to connect to server\n${err.toString()}', () => {});
