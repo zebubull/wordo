@@ -40,7 +40,8 @@ class Client extends ChangeNotifier {
   }
 
   void setMatches(List<Assignment> matches) {
-    _matches = matches;
+    _matches.clear();
+    _matches.addAll(matches);
     _sendAssignments();
     notifyListeners();
   }
