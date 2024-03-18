@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientProvider extends ChangeNotifier {
   Client? _client;
+  SharedPreferences? _prefs;
 
   bool get connected => _client != null;
   Client? get client => _client;
@@ -19,12 +20,15 @@ class ClientProvider extends ChangeNotifier {
   String _username = "scouter";
 
   ClientProvider() {
-    SharedPreferences.getInstance()
-        .then((prefs) => _username = prefs.getString('username') ?? "scouter");
+    SharedPreferences.getInstance().then((prefs) {
+      _prefs = prefs;
+      _username = _prefs!.getString('username') ?? "scouter";
+    });
   }
 
   void updateName(String name) {
     _username = name;
+    _prefs?.setString('username', name);
     if (client == null) return;
 
     client!.name = name;
