@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:scouting_app/main.dart';
 import 'package:scouting_app/models/assignment.dart';
-import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/util/byte_helper.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
@@ -24,8 +23,8 @@ class User extends ChangeNotifier {
       : _username = username,
         _assignments = [];
 
-  void assign(Team team, int match) {
-    _assignments.add(Assignment(team: team, matchNumber: match));
+  void assign(Assignment match) {
+    _assignments.add(match);
     _save();
     notifyListeners();
   }

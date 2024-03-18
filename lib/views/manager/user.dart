@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/server/server.dart';
-import 'package:scouting_app/models/server/team_store.dart';
 import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
+import 'package:scouting_app/widgets/match_input_card.dart';
 import 'package:watch_it/watch_it.dart';
 
 class UserView extends WatchingStatefulWidget {
@@ -27,7 +27,6 @@ class _UserViewState extends State<UserView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final user = watch(widget.user);
-    final teams = watchPropertyValue((TeamStore t) => t.teams);
 
     return Scaffold(
       appBar: AppBar(title: Text(user.username)),
@@ -47,45 +46,10 @@ class _UserViewState extends State<UserView> {
                         })),
               if (user.matches.isNotEmpty)
                 Divider(color: theme.colorScheme.onPrimaryContainer),
-              ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Assign match'),
-                  shape: const Border(),
-                  key: PageStorageKey('Assign match'),
-                  children: [
-                    TextField(
-                      controller: _numberController,
-                      key: PageStorageKey('user_numtext'),
-                      decoration: InputDecoration(
-                          hintText: 'Match number',
-                          border: OutlineInputBorder()),
-                    ),
-                    SizedBox(height: 8.0),
-                    DropdownMenu<Team>(
-                      requestFocusOnTap: false,
-                      label: const Text('Team'),
-                      key: PageStorageKey('user_teambox'),
-                      onSelected: (team) => setState(() => selectedTeam = team),
-                      dropdownMenuEntries: [
-                        for (var team in teams)
-                          DropdownMenuEntry<Team>(
-                            label: '(${team.number}) ${team.name}',
-                            value: team,
-                          )
-                      ],
-                    ),
-                    SizedBox(height: 8.0),
-                    IconButton(
-                        icon: const Icon(Icons.add_box_outlined),
-                        onPressed: () {
-                          var match = int.tryParse(_numberController.text);
-                          if (match == null || selectedTeam == null) return;
-
-                          user.assign(selectedTeam!, match);
-                          _numberController.clear();
-                          di.get<Server>().checkAssignments(user);
-                        }),
-                  ])
+              MatchInputCard(onPressed: (match) {
+                user.assign(match);
+                di.get<Server>().checkAssignments(user);
+              }),
             ])),
       ),
     );

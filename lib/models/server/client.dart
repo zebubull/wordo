@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:scouting_app/models/assignment.dart';
-import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
 
 class Client extends ChangeNotifier {
@@ -22,8 +21,8 @@ class Client extends ChangeNotifier {
       : _id = id,
         _matches = [];
 
-  void assign(Team team, int match) {
-    _matches.add(Assignment(team: team, matchNumber: match));
+  void assign(Assignment match) {
+    _matches.add(match);
     _sendAssignments();
     notifyListeners();
   }
