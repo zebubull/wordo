@@ -7,7 +7,6 @@ enum PacketType {
   welcome,
   username,
   assignment,
-  assignmentRequest,
 }
 
 class Packet extends ByteHelper {
