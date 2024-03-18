@@ -9,6 +9,7 @@ class ErrorDialog extends StatelessWidget {
 
   static void show(String title, String body, void Function() onPressed) {
     showDialog(
+        barrierDismissible: false,
         context: navigatorKey.currentContext!,
         builder: (_) => ErrorDialog(title, body, onPressed));
   }

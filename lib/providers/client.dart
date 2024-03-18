@@ -64,6 +64,10 @@ class ClientProvider extends ChangeNotifier {
           assignedMatches.add(packet.readAssignment());
         }
         notifyListeners();
+      case PacketType.disconnect:
+        _closeClient();
+        ErrorDialog.show('Disconnected',
+            'The server host has forcibly disconnected you.', () {});
       default:
         break;
     }

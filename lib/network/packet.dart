@@ -5,6 +5,7 @@ import 'package:scouting_app/util/byte_helper.dart';
 
 enum PacketType {
   welcome,
+  disconnect,
   username,
   assignment,
 }

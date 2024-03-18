@@ -125,7 +125,9 @@ class Server extends ChangeNotifier {
     notifyListeners();
   }
 
-  void disconnect(Client client) {
+  Future<void> disconnect(Client client) async {
+    Packet.send(PacketType.disconnect).send(client.sock);
+    await client.sock.flush();
     client.sock.close();
   }
 
