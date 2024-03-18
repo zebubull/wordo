@@ -54,4 +54,9 @@ class Client extends ChangeNotifier {
     packet.send(sock);
     sock.flush();
   }
+
+  @override
+  String toString() {
+    return '$username@${sock.remoteAddress.address}';
+  }
 }

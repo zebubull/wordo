@@ -25,8 +25,7 @@ class ClientListView extends WatchingWidget {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                            child: Text(
-                                '${client.username}@${client.sock.remoteAddress.host} (${client.id})'),
+                            child: Text('$client (${client.id})'),
                             onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(

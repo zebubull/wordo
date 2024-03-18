@@ -33,9 +33,7 @@ class _ClientViewState extends State<ClientView> {
     final client = watch(maybeClient);
 
     return Scaffold(
-      appBar: AppBar(
-          title:
-              Text('${client.username}@${client.sock.remoteAddress.address}')),
+      appBar: AppBar(title: Text('$client')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CenteredCard(
