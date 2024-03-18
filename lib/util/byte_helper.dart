@@ -73,9 +73,7 @@ class ByteHelper {
     var u = User(username);
     var numMatches = readU32();
     for (int i = 0; i < numMatches; ++i) {
-      final team = readTeam();
-      final number = readU32();
-      u.assign(team, number);
+      u.assignWithoutSaving(readAssignment());
     }
     return u;
   }

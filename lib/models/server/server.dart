@@ -3,9 +3,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:scouting_app/main.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/util/byte_helper.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
 
 import 'client.dart';
@@ -24,12 +26,27 @@ class User extends ChangeNotifier {
 
   void assign(Team team, int match) {
     _assignments.add(Assignment(team: team, matchNumber: match));
+    _save();
     notifyListeners();
   }
 
   void unassign(Assignment match) {
     _assignments.remove(match);
+    _save();
     notifyListeners();
+  }
+
+  void assignWithoutSaving(Assignment match) {
+    _assignments.add(match);
+    notifyListeners();
+  }
+
+  void _save() async {
+    if (dataPath == null) return;
+    final file = File('${dataPath!.path}/users/$username.dat');
+    final data = ByteHelper.write();
+    data.addUser(this);
+    await file.writeAsBytes(data.bytes);
   }
 }
 
@@ -50,6 +67,13 @@ class Server extends ChangeNotifier {
       : _clients = [],
         _users = [] {
     _start(host, port);
+    if (dataPath != null) {
+      Directory('${dataPath!.path}/users').create().then((_) => Directory(
+              '${dataPath!.path}/users')
+          .list()
+          .forEach((e) async => _users.add(
+              ByteHelper.read(await File(e.path).readAsBytes()).readUser())));
+    }
   }
 
   void _start(InternetAddress host, int port) async {
@@ -126,6 +150,7 @@ class Server extends ChangeNotifier {
   User registerUser(String username) {
     var user = User(username);
     _users.add(user);
+    user._save();
     notifyListeners();
     return user;
   }

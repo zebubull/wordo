@@ -38,7 +38,7 @@ class _UserViewState extends State<UserView> {
             child: ListView(shrinkWrap: true, children: [
               for (var match in user.matches)
                 ListTile(
-                    title: Text('${match.matchNumber}'),
+                    title: Text('${match.matchNumber} | ${match.team.name}'),
                     trailing: IconButton(
                         icon: const Icon(Icons.delete_outline_rounded),
                         onPressed: () {
