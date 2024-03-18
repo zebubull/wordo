@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/client/client.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/widgets/error_dialog.dart';
 
 class ClientProvider extends ChangeNotifier {
   Client? _client;
@@ -58,8 +59,8 @@ class ClientProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _onClientError(Object? error) {
-    print('$error');
+  void _onClientError(Object? err) {
+    ErrorDialog.show('Client error', err.toString(), () => {});
     _closeClient();
   }
 
@@ -72,7 +73,8 @@ class ClientProvider extends ChangeNotifier {
       _client = Client(id: -1, socket: sock);
       _client!.name = _username;
     } catch (err) {
-      print('[Error] Failed to connect to server: $err');
+      ErrorDialog.show('Client error',
+          'Failed to connect to server\n${err.toString()}', () => {});
     }
   }
 }

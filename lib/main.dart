@@ -9,6 +9,7 @@ import 'package:scouting_app/providers/client.dart';
 import 'package:watch_it/watch_it.dart';
 
 import 'views/home.dart';
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   di.registerLazySingleton<Server>(
@@ -33,6 +34,7 @@ class AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: '8873 Scouting',
       theme: ThemeData(
         useMaterial3: true,

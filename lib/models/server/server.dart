@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/team.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/widgets/error_dialog.dart';
 
 import 'client.dart';
 
@@ -52,7 +53,12 @@ class Server extends ChangeNotifier {
   }
 
   void _start(InternetAddress host, int port) async {
+    try {
     _sock = await ServerSocket.bind(host, port);
+    } catch (err) {
+      ErrorDialog.show('Server error', err.toString(), () {});
+      return;
+    }
     _sock!.listen(_receiveClient);
     notifyListeners();
   }
@@ -76,7 +82,11 @@ class Server extends ChangeNotifier {
 
   void _setupClient(Client client) {
     client.sock.listen((data) => _onPacketGet(data, client.id),
-        onDone: () => _removeClient(client.id));
+        onDone: () => _removeClient(client.id),
+        onError: (e, t) {
+          ErrorDialog.show('Server error', e.toString(), () => {});
+          _removeClient(client.id);
+        });
 
     var welcome = Packet.send(PacketType.welcome);
     welcome.addU32(client.id);
