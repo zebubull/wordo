@@ -80,7 +80,7 @@ class AppState extends State<App> {
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.lightBlue,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       home: HomeView(),
     );
   }
