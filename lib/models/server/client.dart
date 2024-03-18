@@ -6,12 +6,13 @@ import 'package:scouting_app/network/packet.dart';
 
 class Client extends ChangeNotifier {
   Socket sock;
+  String host;
 
   int _id;
   int get id => _id;
 
   String? _username;
-  String get username => _username ?? sock.remoteAddress.host;
+  String get username => _username ?? host;
 
   List<Assignment> _matches;
   UnmodifiableListView<Assignment> get matches =>
@@ -19,7 +20,8 @@ class Client extends ChangeNotifier {
 
   Client(int id, this.sock)
       : _id = id,
-        _matches = [];
+        _matches = [],
+        host = sock.remoteAddress.address;
 
   void assign(Assignment match) {
     _matches.add(match);
@@ -57,6 +59,6 @@ class Client extends ChangeNotifier {
 
   @override
   String toString() {
-    return '$username@${sock.remoteAddress.address}';
+    return '$username@$host';
   }
 }
