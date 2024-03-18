@@ -22,11 +22,12 @@
             # from pkgs
             flutter
             jdk11
+            commitizen
             #from ./nix/*
             android.platform-tools
             # runtime dep
             xdg-user-dirs
-            commitizen
+            gnome.zenity
           ];
 
           # shellHook = ''
