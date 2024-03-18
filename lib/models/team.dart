@@ -1,8 +1,8 @@
 class Team {
-  int number = 0;
-  String? name;
+  final int number;
+  final String name;
 
-  Team({required this.number, this.name});
+  Team({required this.number, required this.name});
 
   @override
   bool operator ==(Object other) {

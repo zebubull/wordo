@@ -6,6 +6,7 @@ import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/client/client.dart';
 import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientProvider extends ChangeNotifier {
   Client? _client;
@@ -16,6 +17,11 @@ class ClientProvider extends ChangeNotifier {
   List<Assignment> assignedMatches = <Assignment>[];
 
   String _username = "scouter";
+
+  ClientProvider() {
+    SharedPreferences.getInstance()
+        .then((prefs) => _username = prefs.getString('username') ?? "scouter");
+  }
 
   void updateName(String name) {
     _username = name;

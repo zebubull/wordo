@@ -21,13 +21,22 @@ class ClientListView extends WatchingWidget {
               if (client != null)
                 Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: ElevatedButton(
-                      child: Text(
-                          '${client.username}@${client.sock.remoteAddress.host} (${client.id})'),
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ClientView(client.id)))),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                            child: Text(
+                                '${client.username}@${client.sock.remoteAddress.host} (${client.id})'),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ClientView(client.id)))),
+                      ),
+                      IconButton(
+                          onPressed: () => di.get<Server>().disconnect(client),
+                          icon: const Icon(Icons.highlight_remove)),
+                    ],
+                  ),
                 ),
           ],
         ),

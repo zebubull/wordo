@@ -41,7 +41,10 @@ class _UserViewState extends State<UserView> {
                     title: Text('${match.matchNumber}'),
                     trailing: IconButton(
                         icon: const Icon(Icons.delete_outline_rounded),
-                        onPressed: () => user.unassign(match))),
+                        onPressed: () {
+                          user.unassign(match);
+                          di.get<Server>().checkAssignments(user);
+                        })),
               if (user.matches.isNotEmpty)
                 Divider(color: theme.colorScheme.onPrimaryContainer),
               ExpansionTile(

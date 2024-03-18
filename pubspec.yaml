@@ -1,8 +1,7 @@
-
 name: scouting_app
 description: Team 8873's scouting app for FRC 2024 Crescendo.
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 0.0.1+1
 
@@ -10,6 +9,8 @@ environment:
   sdk: ^3.1.1
 
 dependencies:
+  build_runner: ^2.4.8
+  file_picker: ^6.2.0
   flutter:
     sdk: flutter
 
@@ -17,6 +18,7 @@ dependencies:
   network_info_plus: ^4.1.0+1
   path_provider: ^2.1.2
   provider: ^6.1.1
+  shared_preferences: ^2.2.2
   watch_it: ^1.4.0
 
 dev_dependencies:

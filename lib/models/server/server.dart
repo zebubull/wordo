@@ -54,7 +54,7 @@ class Server extends ChangeNotifier {
 
   void _start(InternetAddress host, int port) async {
     try {
-    _sock = await ServerSocket.bind(host, port);
+      _sock = await ServerSocket.bind(host, port);
     } catch (err) {
       ErrorDialog.show('Server error', err.toString(), () {});
       return;
@@ -95,10 +95,14 @@ class Server extends ChangeNotifier {
   }
 
   void _removeClient(int id) {
-    _clients[id]!.sock.close();
+    _clients[id]?.sock.close();
     _clients[id] = null;
     _numClients--;
     notifyListeners();
+  }
+
+  void disconnect(Client client) {
+    client.sock.close();
   }
 
   void _onPacketGet(Uint8List data, int clientId) {

@@ -121,7 +121,7 @@ class _ManagerViewState extends State<ManagerView> {
           label: 'Teams',
         ),
         NavigationDestination(
-          selectedIcon: const Icon(Icons.signal_wifi_4_bar),
+          selectedIcon: const Icon(Icons.signal_wifi_4_bar_outlined),
           icon: const Icon(Icons.signal_wifi_0_bar_outlined),
           label: 'Network',
         ),
