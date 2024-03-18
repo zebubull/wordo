@@ -16,7 +16,7 @@ import 'views/home.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 Directory? dataPath;
 
-void main() async {
+Future<void> main() async {
   di.registerLazySingleton<Server>(
       () => Server(InternetAddress.anyIPv4, 42069));
   di.registerLazySingleton<TeamStore>(() => TeamStore());

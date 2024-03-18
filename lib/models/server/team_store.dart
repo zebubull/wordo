@@ -27,7 +27,7 @@ class TeamStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _loadTeams() async {
+  Future<void> _loadTeams() async {
     if (dataPath == null) return;
     final file = File('${dataPath!.path}/teams.dat');
     if (!await file.exists()) return;
@@ -39,7 +39,7 @@ class TeamStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _saveTeams() async {
+  Future<void> _saveTeams() async {
     if (dataPath == null) return;
     var data = ByteHelper.write();
     data.addU32(_teams.length);

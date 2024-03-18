@@ -69,7 +69,7 @@ class ClientProvider extends ChangeNotifier {
     }
   }
 
-  void _closeClient() async {
+  Future<void> _closeClient() async {
     if (_client == null) return;
     await _client!.socket.close();
     _client = null;
@@ -81,7 +81,7 @@ class ClientProvider extends ChangeNotifier {
     _closeClient();
   }
 
-  void connectToServer(InternetAddress host, int port) async {
+  Future<void> connectToServer(InternetAddress host, int port) async {
     try {
       var sock = await Socket.connect(host, port);
       print('[Debug] Connected to server');

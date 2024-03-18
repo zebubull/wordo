@@ -41,7 +41,7 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _save() async {
+  Future<void> _save() async {
     if (dataPath == null) return;
     final file = File('${dataPath!.path}/users/$username.dat');
     final data = ByteHelper.write();
@@ -76,7 +76,7 @@ class Server extends ChangeNotifier {
     }
   }
 
-  void _start(InternetAddress host, int port) async {
+  Future<void> _start(InternetAddress host, int port) async {
     try {
       _sock = await ServerSocket.bind(host, port);
     } catch (err) {
@@ -155,7 +155,7 @@ class Server extends ChangeNotifier {
     return user;
   }
 
-  void removeUser(User user) async {
+  Future<void> removeUser(User user) async {
     _users.remove(user);
     if (dataPath != null) {
       await File('${dataPath!.path}/users/${user._username}.dat').delete();
