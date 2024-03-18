@@ -7,6 +7,7 @@ import 'package:scouting_app/main.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/network/packet.dart';
 import 'package:scouting_app/util/byte_helper.dart';
+import 'package:scouting_app/util/noitifer.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
 
 import 'client.dart';
@@ -84,6 +85,7 @@ class Server extends ChangeNotifier {
     }
     _sock!.listen(_receiveClient);
     notifyListeners();
+    showNotification('Server started on port $port.');
   }
 
   void _receiveClient(Socket client) {
@@ -115,9 +117,12 @@ class Server extends ChangeNotifier {
     welcome.addU32(client.id);
     welcome.send(client.sock);
     client.sock.flush();
+    showNotification('$client connected.');
   }
 
   void _removeClient(int id) {
+    if (_clients[id] == null) return;
+    showNotification('${_clients[id]} disconnected.');
     _clients[id]?.sock.close();
     _clients[id] = null;
     _numClients--;
@@ -143,6 +148,8 @@ class Server extends ChangeNotifier {
           _clients[id]!.setMatches(user.matches);
         }
         notifyListeners();
+        showNotification(
+            '${_clients[id]!.sock.remoteAddress.address} renamed to $username');
       default:
         break;
     }

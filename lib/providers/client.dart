@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/client/client.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/util/noitifer.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,6 +79,7 @@ class ClientProvider extends ChangeNotifier {
     await _client!.socket.close();
     _client = null;
     notifyListeners();
+    showNotification('Disconnected from server.');
   }
 
   void _onClientError(Object? err) {
@@ -88,13 +90,13 @@ class ClientProvider extends ChangeNotifier {
   Future<void> connectToServer(InternetAddress host, int port) async {
     try {
       var sock = await Socket.connect(host, port);
-      print('[Debug] Connected to server');
       sock.listen(_onClientReceive,
           onError: _onClientError, onDone: _closeClient);
       _client = Client(id: -1, socket: sock);
       _client!.name = _username;
       _prefs?.setInt('port', port);
       _prefs?.setString('host', host.address);
+      showNotification('Connected to server.');
     } catch (err) {
       ErrorDialog.show('Client error',
           'Failed to connect to server\n${err.toString()}', () => {});
