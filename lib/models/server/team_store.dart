@@ -10,6 +10,10 @@ class TeamStore extends ChangeNotifier {
   List<Team> _teams;
 
   UnmodifiableListView<Team> get teams => UnmodifiableListView(_teams);
+  
+  bool? _loading;
+
+  bool get loading => _loading == true;
 
   TeamStore() : _teams = [] {
     _loadTeams();
@@ -28,6 +32,8 @@ class TeamStore extends ChangeNotifier {
   }
 
   Future<void> _loadTeams() async {
+    _loading = true;
+    notifyListeners();
     if (dataPath == null) return;
     final file = File('${dataPath!.path}/teams.dat');
     if (!await file.exists()) return;
@@ -36,6 +42,7 @@ class TeamStore extends ChangeNotifier {
     for (int i = 0; i < numTeams; ++i) {
       _teams.add(data.readTeam());
     }
+    _loading = false;
     notifyListeners();
   }
 

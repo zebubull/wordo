@@ -2,9 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:scouting_app/main.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/client/client.dart';
 import 'package:scouting_app/network/packet.dart';
+import 'package:scouting_app/util/byte_helper.dart';
 import 'package:scouting_app/util/noitifer.dart';
 import 'package:scouting_app/widgets/error_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +20,10 @@ class ClientProvider extends ChangeNotifier {
 
   List<Assignment> assignedMatches = <Assignment>[];
 
+  bool? _loadingMatches;
+  Future<void>? _loadingFuture;
+  bool get loadingMatches => _loadingMatches == true;
+
   String _username = "scouter";
 
   ClientProvider() {
@@ -29,14 +35,15 @@ class ClientProvider extends ChangeNotifier {
 
       if (port != null) {
         var host = InternetAddress(prefs.getString('host')!);
-        connectToServer(host, port);
+        connectToServer(host, port, showErrorAsNotification: true);
       }
+
+      _loadingFuture = _loadAssignments();
     });
   }
 
   void updateName(String name) {
-    _username = name;
-    _prefs?.setString('username', name);
+    _username = name; _prefs?.setString('username', name);
     if (client == null) return;
 
     client!.name = name;
@@ -47,7 +54,7 @@ class ClientProvider extends ChangeNotifier {
     client!.socket.flush();
   }
 
-  void _onClientReceive(Uint8List bytes) {
+  void _onClientReceive(Uint8List bytes) async {
     var packet = Packet.receive(bytes);
     switch (packet.type) {
       case PacketType.welcome:
@@ -59,11 +66,16 @@ class ClientProvider extends ChangeNotifier {
         req.send(client!.socket);
         client!.socket.flush();
       case PacketType.assignment:
+        if (_loadingFuture != null) {
+          await _loadingFuture;
+          _loadingFuture = null;
+        }
         var count = packet.readU32();
         assignedMatches.clear();
         for (var i = 0; i < count; ++i) {
           assignedMatches.add(packet.readAssignment());
         }
+        _saveAssignments();
         notifyListeners();
       case PacketType.disconnect:
         _closeClient();
@@ -72,6 +84,37 @@ class ClientProvider extends ChangeNotifier {
       default:
         break;
     }
+  }
+
+  Future<void> _saveAssignments() async {
+    if (dataPath == null) return;
+    var data = ByteHelper.write();
+    data.addU32(assignedMatches.length);
+    for (var match in assignedMatches) {
+      data.addAssignment(match);
+    }
+  
+    await Directory('${dataPath!.path}/user').create();
+    await File('${dataPath!.path}/user/matches.dat').writeAsBytes(data.bytes);
+  }
+
+  Future<void> _loadAssignments() async {
+    if (dataPath == null) return;
+    _loadingMatches = true;
+    notifyListeners();
+    var file = File('${dataPath!.path}/user/matches.dat');
+    if (!await file.exists()) {
+      _loadingMatches = false;
+      notifyListeners();
+      return;
+    }
+    var data = ByteHelper.read(await file.readAsBytes());
+    var numMatches = data.readU32();
+    for (var i = 0; i < numMatches; ++i) {
+      assignedMatches.add(data.readAssignment());
+    }
+    _loadingMatches = false;
+    notifyListeners();
   }
 
   Future<void> _closeClient() async {
@@ -87,7 +130,7 @@ class ClientProvider extends ChangeNotifier {
     _closeClient();
   }
 
-  Future<void> connectToServer(InternetAddress host, int port) async {
+  Future<void> connectToServer(InternetAddress host, int port, {bool showErrorAsNotification = false}) async {
     try {
       var sock = await Socket.connect(host, port);
       sock.listen(_onClientReceive,
@@ -98,8 +141,12 @@ class ClientProvider extends ChangeNotifier {
       _prefs?.setString('host', host.address);
       showNotification('Connected to server.');
     } catch (err) {
-      ErrorDialog.show('Client error',
+      if (!showErrorAsNotification) {
+        ErrorDialog.show('Client error',
           'Failed to connect to server\n${err.toString()}', () => {});
+      } else {
+        showNotification('Failed to connect to server');
+      }
     }
   }
 }

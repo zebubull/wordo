@@ -55,6 +55,9 @@ class Server extends ChangeNotifier {
   List<Client?> _clients;
   List<User> _users;
 
+  bool? _usersLoading;
+  bool get usersLoading => _usersLoading == true;
+
   bool get running => _sock != null;
   int get port => _sock?.port ?? 0;
   UnmodifiableListView<Client?> get clients => UnmodifiableListView(_clients);
@@ -68,11 +71,16 @@ class Server extends ChangeNotifier {
         _users = [] {
     _start(host, port);
     if (dataPath != null) {
-      Directory('${dataPath!.path}/users').create().then((_) => Directory(
+    _usersLoading = true;
+      Directory('${dataPath!.path}/users').create().then((_) async {
+        await Directory(
               '${dataPath!.path}/users')
           .list()
           .forEach((e) async => _users.add(
-              ByteHelper.read(await File(e.path).readAsBytes()).readUser())));
+              ByteHelper.read(await File(e.path).readAsBytes()).readUser()));
+        _usersLoading = false;
+        notifyListeners();
+      });
     }
   }
 

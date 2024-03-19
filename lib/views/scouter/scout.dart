@@ -9,6 +9,8 @@ class ScoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ClientProvider>(
       builder: (context, client, child) {
+        if (client.loadingMatches) return CircularProgressIndicator();
+
         return CenteredCard(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

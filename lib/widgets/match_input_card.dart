@@ -18,6 +18,12 @@ class _MatchInputCardState extends State<MatchInputCard> {
   Team? _selectedTeam;
 
   @override
+    void initState() {
+      super.initState();
+    _selectedTeam = di.get<TeamStore>().teams.firstOrNull;
+    }
+
+  @override
   void dispose() {
     _numberController.dispose();
     super.dispose();
