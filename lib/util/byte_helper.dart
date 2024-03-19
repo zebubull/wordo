@@ -10,11 +10,19 @@ class ByteHelper {
   Uint8List? _read;
   int _readIndex = 0;
 
-  List<int> get bytes => _write!.toBytes();
+  Uint8List get bytes => _write!.toBytes();
 
   ByteHelper.write() : _write = BytesBuilder();
 
   ByteHelper.read(Uint8List bytes) : _read = bytes;
+
+  void addU8(int data) {
+    _write!.add(Uint8List(1)..buffer.asUint8List()[0] = data);
+  }
+
+  void addU16(int data) {
+    _write!.add(Uint8List(2)..buffer.asUint16List()[0] = data);
+  }
 
   void addU32(int data) {
     _write!.add(Uint8List(4)..buffer.asUint32List()[0] = data);
@@ -41,6 +49,18 @@ class ByteHelper {
     for (var match in user.matches) {
       addAssignment(match);
     }
+  }
+
+  int readU8() {
+    var data = _read![_readIndex];
+    _readIndex++;
+    return data;
+  }
+
+  int readU16() {
+    var data = _read!.sublist(_readIndex).buffer.asUint16List()[0];
+    _readIndex += 2;
+    return data;
   }
 
   int readU32() {

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:scouting_app/main.dart';
+import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/server/server.dart';
 import 'package:scouting_app/models/team.dart';
+import 'package:scouting_app/util/byte_helper.dart';
 import 'package:scouting_app/widgets/centered_card.dart';
 import 'package:scouting_app/widgets/match_input_card.dart';
 import 'package:watch_it/watch_it.dart';
@@ -46,6 +50,14 @@ class _UserViewState extends State<UserView> {
                         })),
               if (user.matches.isNotEmpty)
                 Divider(color: theme.colorScheme.onPrimaryContainer),
+              if (user.matches.isNotEmpty)
+                ElevatedButton(
+                    onPressed: () => showDialog(
+                        context: navigatorKey.currentContext!,
+                        builder: (_) => _makeQr(user.matches)),
+                    child: const Text('QR Code')),
+              if (user.matches.isNotEmpty)
+                Divider(color: theme.colorScheme.onPrimaryContainer),
               MatchInputCard(onPressed: (match) {
                 user.assign(match);
                 di.get<Server>().checkAssignments(user);
@@ -53,5 +65,25 @@ class _UserViewState extends State<UserView> {
             ])),
       ),
     );
+  }
+
+  Widget _makeQr(List<Assignment> matches) {
+    var data = ByteHelper.write();
+    data.addU8(matches.length);
+    for (var match in matches) {
+      data.addU16(match.team.number);
+      data.addU8(match.matchNumber);
+    }
+
+    final code = QrCode.fromUint8List(
+        data: data.bytes, errorCorrectLevel: QrErrorCorrectLevel.L);
+    return Dialog(
+        child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: QrImageView.withQr(
+        qr: code,
+        backgroundColor: Colors.white,
+      ),
+    ));
   }
 }

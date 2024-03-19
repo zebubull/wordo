@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/providers/client.dart';
 import 'package:scouting_app/widgets/connection_panel.dart';
@@ -68,6 +69,13 @@ class _ConnectViewState extends State<ConnectView> {
             ),
             SizedBox(height: 24.0),
             ConnectionPanel(),
+            SizedBox(height: 24.0),
+            ElevatedButton(
+                onPressed: () => showDialog(
+                    context: context,
+                    builder: (c) =>
+                        MobileScanner(onDetect: (_) => Navigator.pop(context))),
+                child: const Text('QR Import')),
           ],
         ),
       ),

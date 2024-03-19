@@ -15,9 +15,11 @@ dependencies:
     sdk: flutter
 
   get_it: ^7.6.7
+  mobile_scanner: ^4.0.1
   network_info_plus: ^4.1.0+1
   path_provider: ^2.1.2
   provider: ^6.1.1
+  qr_flutter: ^4.1.0
   shared_preferences: ^2.2.2
   watch_it: ^1.4.0
 
