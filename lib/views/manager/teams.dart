@@ -24,6 +24,9 @@ class _TeamsViewState extends State<TeamsView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final teams = watchPropertyValue((TeamStore t) => t.teams);
+    final loading = watchPropertyValue((TeamStore t) => t.loading);
+
+    if (loading) return CircularProgressIndicator();
 
     return CenteredCard(
       width: 600,

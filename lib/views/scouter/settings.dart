@@ -14,6 +14,10 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   void initState() {
     super.initState();
+    var currentName = Provider.of<ClientProvider>(context, listen: false).client?.name;
+    if (currentName != null && currentName != "scouter") {
+      _username.text = currentName;
+    }
   }
 
   void _saveSettings() {
