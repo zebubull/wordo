@@ -40,7 +40,7 @@ class ByteHelper {
 
   void addAssignment(Assignment assignment) {
     addTeam(assignment.team);
-    addU32(assignment.matchNumber);
+    addU8(assignment.matchNumber);
   }
 
   void addUser(User user) {
@@ -84,7 +84,7 @@ class ByteHelper {
 
   Assignment readAssignment() {
     var team = readTeam();
-    var number = readU32();
+    var number = readU8();
     return Assignment(team: team, matchNumber: number);
   }
 

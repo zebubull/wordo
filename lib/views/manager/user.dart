@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:scouting_app/main.dart';
 import 'package:scouting_app/models/assignment.dart';
 import 'package:scouting_app/models/server/server.dart';
 import 'package:scouting_app/models/team.dart';
@@ -42,20 +41,16 @@ class _UserViewState extends State<UserView> {
               for (var match in user.matches)
                 ListTile(
                     title: Text('(${match.matchNumber}) ${match.team.name}'),
+                    leading: IconButton(
+                      icon: const Icon(Icons.qr_code),
+                      onPressed: () => showDialog(context: context, builder: (_) => _makeQr(match)),
+                    ),
                     trailing: IconButton(
                         icon: const Icon(Icons.delete_outline_rounded),
                         onPressed: () {
                           user.unassign(match);
                           di.get<Server>().checkAssignments(user);
                         })),
-              if (user.matches.isNotEmpty)
-                Divider(color: theme.colorScheme.onPrimaryContainer),
-              if (user.matches.isNotEmpty)
-                ElevatedButton(
-                    onPressed: () => showDialog(
-                        context: navigatorKey.currentContext!,
-                        builder: (_) => _makeQr(user.matches)),
-                    child: const Text('QR Code')),
               if (user.matches.isNotEmpty)
                 Divider(color: theme.colorScheme.onPrimaryContainer),
               MatchInputCard(onPressed: (match) {
@@ -67,13 +62,9 @@ class _UserViewState extends State<UserView> {
     );
   }
 
-  Widget _makeQr(List<Assignment> matches) {
+  Widget _makeQr(Assignment match) {
     var data = ByteHelper.write();
-    data.addU8(matches.length);
-    for (var match in matches) {
-      data.addU16(match.team.number);
-      data.addU8(match.matchNumber);
-    }
+    data.addAssignment(match);
 
     final code = QrCode.fromUint8List(
         data: data.bytes, errorCorrectLevel: QrErrorCorrectLevel.L);

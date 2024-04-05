@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scouting_app/views/manager/manager.dart';
-import 'package:scouting_app/views/scouter/scouter.dart';
+import 'package:scouting_app/views/settings.dart';
+import 'scouter/scouter.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -13,6 +14,10 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Role Select'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsView())),
+        child: const Icon(Icons.settings),
       ),
       body: Center(
           child: Column(

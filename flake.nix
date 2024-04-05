@@ -21,7 +21,7 @@
           buildInputs = with pkgs; [
             # from pkgs
             flutter
-            jdk11
+            jdk17
             commitizen
             #from ./nix/*
             android.platform-tools

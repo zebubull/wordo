@@ -69,15 +69,7 @@ class _ConnectViewState extends State<ConnectView> {
             ),
             SizedBox(height: 24.0),
             ConnectionPanel(),
-            SizedBox(height: 24.0),
-            ElevatedButton(
-                onPressed: () => showDialog(
-                    context: context,
-                    builder: (c) =>
-                        MobileScanner(onDetect: (_) => Navigator.pop(context))),
-                child: const Text('QR Import')),
-          ],
-        ),
+          ]),
       ),
     );
   }

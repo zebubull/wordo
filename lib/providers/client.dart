@@ -75,7 +75,7 @@ class ClientProvider extends ChangeNotifier {
         for (var i = 0; i < count; ++i) {
           assignedMatches.add(packet.readAssignment());
         }
-        _saveAssignments();
+        await _saveAssignments();
         notifyListeners();
       case PacketType.disconnect:
         _closeClient();
@@ -148,5 +148,16 @@ class ClientProvider extends ChangeNotifier {
         showNotification('Failed to connect to server');
       }
     }
+  }
+
+  Future<void> assignMatch(Assignment match) async {
+        if (_loadingFuture != null) {
+          await _loadingFuture;
+          _loadingFuture = null;
+        }
+
+        assignedMatches.add(match);
+        await _saveAssignments();
+        notifyListeners();
   }
 }
